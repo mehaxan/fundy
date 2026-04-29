@@ -1,18 +1,12 @@
-name: Deploy Web to Railway
+name: Deploy to Railway
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'apps/web/**'
-      - 'packages/shared/**'
-      - 'package.json'
-      - 'pnpm-workspace.yaml'
-      - 'pnpm-lock.yaml'
 
 jobs:
   deploy:
-    name: Build & Deploy Web
+    name: Type-check & Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -30,8 +24,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Angular app
-        run: pnpm --filter @fundy/web build --configuration=production
+      - name: Type-check
+        run: pnpm exec tsc --noEmit
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
@@ -39,4 +33,4 @@ jobs:
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service ${{ secrets.RAILWAY_WEB_SERVICE_ID }} --detach
+        run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} --detach
