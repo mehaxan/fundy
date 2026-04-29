@@ -29,7 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function formatCents(cents: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
+  return new Intl.NumberFormat("en-BD", { style: "currency", currency: "BDT" }).format(cents / 100);
 }
 
 function formatDate(d: string | null) {

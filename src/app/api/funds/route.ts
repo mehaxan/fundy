@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       name,
       description,
       sharePrice,
-      currency: currency ?? "USD",
+      currency: currency ?? "BDT",
       createdBy: session!.sub,
       bankName,
       bankAccountName,

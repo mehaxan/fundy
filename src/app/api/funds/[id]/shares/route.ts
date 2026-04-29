@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { shares, depositFunds } from "@/db/schema";
+import { shares, depositFunds, users } from "@/db/schema";
 import { getSession, requireRole } from "@/lib/session";
 
 type Params = { params: Promise<{ id: string }> };
@@ -21,14 +21,17 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Fund is not active" }, { status: 400 });
   }
 
-  const { userId, quantity, purchasedAt } = await req.json();
-  if (!userId || !quantity || !purchasedAt) {
-    return NextResponse.json({ error: "userId, quantity, purchasedAt required" }, { status: 400 });
+  const { email, quantity, purchasedAt } = await req.json();
+  if (!email || !quantity || !purchasedAt) {
+    return NextResponse.json({ error: "email, quantity, purchasedAt required" }, { status: 400 });
   }
+
+  const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase().trim()));
+  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   const [share] = await db
     .insert(shares)
-    .values({ fundId, userId, quantity, unitPrice: fund.sharePrice, purchasedAt: new Date(purchasedAt) })
+    .values({ fundId, userId: user.id, quantity, unitPrice: fund.sharePrice, purchasedAt: new Date(purchasedAt) })
     .returning();
 
   return NextResponse.json(share, { status: 201 });

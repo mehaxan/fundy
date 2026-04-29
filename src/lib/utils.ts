@@ -5,10 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
-export function formatCents(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
+export function formatCents(cents: number, currency = "BDT"): string {
+  return new Intl.NumberFormat("en-BD", {
     style: "currency",
-    currency: "USD",
+    currency,
   }).format(cents / 100);
 }
 

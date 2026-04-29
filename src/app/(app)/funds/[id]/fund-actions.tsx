@@ -32,7 +32,7 @@ export default function FundActions({ fundId, fundStatus, allUsers }: Props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: data.get("userId"),
+        email: data.get("email"),
         quantity: Number(data.get("quantity")),
         purchasedAt: data.get("purchasedAt"),
       }),
@@ -79,11 +79,12 @@ export default function FundActions({ fundId, fundStatus, allUsers }: Props) {
           <h3 className="font-medium text-sm mb-3">Record Share Purchase</h3>
           <form onSubmit={handleRecordShare} className="flex flex-wrap gap-3 items-end">
             <div>
-              <label className="block text-xs text-gray-600 mb-1">User ID</label>
+              <label className="block text-xs text-gray-600 mb-1">User Email</label>
               <input
-                name="userId"
+                name="email"
+                type="email"
                 required
-                placeholder="User UUID"
+                placeholder="user@example.com"
                 className="border rounded px-2 py-1 text-sm w-64"
               />
             </div>

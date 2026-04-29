@@ -85,7 +85,7 @@ export default function CreateFundDialog() {
             </div>
             <div className="w-28">
               <label className="block text-xs font-medium text-gray-700 mb-1">Currency</label>
-              <input name="currency" defaultValue="USD" className="w-full border rounded-lg px-3 py-2 text-sm" />
+              <input name="currency" defaultValue="BDT" className="w-full border rounded-lg px-3 py-2 text-sm" />
             </div>
           </div>
 
