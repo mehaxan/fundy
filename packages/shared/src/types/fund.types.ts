@@ -1,13 +1,13 @@
 export enum FundStatus {
-  DRAFT = 'draft',
-  ACTIVE = 'active',
-  CLOSED = 'closed',
+  DRAFT = "draft",
+  ACTIVE = "active",
+  CLOSED = "closed",
 }
 
 export enum ShareStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  REJECTED = 'rejected',
+  PENDING = "pending",
+  CONFIRMED = "confirmed",
+  REJECTED = "rejected",
 }
 
 export interface DepositFund {

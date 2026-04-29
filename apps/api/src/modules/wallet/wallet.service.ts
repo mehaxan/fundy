@@ -3,10 +3,10 @@ import {
   Inject,
   NotFoundException,
   BadRequestException,
-} from '@nestjs/common';
-import { eq, and, isNull, sql } from 'drizzle-orm';
-import { DB, DrizzleDB } from '../../database/database.module';
-import { wallets, walletTransactions } from '../../database/schema';
+} from "@nestjs/common";
+import { eq, and, isNull, sql } from "drizzle-orm";
+import { DB, DrizzleDB } from "../../database/database.module";
+import { wallets, walletTransactions } from "../../database/schema";
 import {
   Wallet,
   WalletTransaction,
@@ -16,7 +16,7 @@ import {
   RequestWithdrawalDto,
   ConfirmWithdrawalDto,
   ManualAdjustmentDto,
-} from '@fundy/shared';
+} from "@fundy/shared";
 
 @Injectable()
 export class WalletService {
@@ -42,13 +42,15 @@ export class WalletService {
       .limit(1);
 
     const [pending] = await this.db
-      .select({ total: sql<number>`coalesce(sum(${walletTransactions.amount}),0)` })
+      .select({
+        total: sql<number>`coalesce(sum(${walletTransactions.amount}),0)`,
+      })
       .from(walletTransactions)
       .where(
         and(
           eq(walletTransactions.walletId, wallet.id),
-          eq(walletTransactions.status, 'pending'),
-          eq(walletTransactions.direction, 'debit'),
+          eq(walletTransactions.status, "pending"),
+          eq(walletTransactions.direction, "debit"),
         ),
       );
 
@@ -78,22 +80,25 @@ export class WalletService {
     return rows.map(this.mapTxn);
   }
 
-  async requestWithdrawal(userId: string, dto: RequestWithdrawalDto): Promise<WalletTransaction> {
+  async requestWithdrawal(
+    userId: string,
+    dto: RequestWithdrawalDto,
+  ): Promise<WalletTransaction> {
     const wallet = await this.getWallet(userId);
     const available = wallet.balance - wallet.pendingDebits;
     if (dto.amount > available) {
-      throw new BadRequestException('Insufficient available balance');
+      throw new BadRequestException("Insufficient available balance");
     }
 
     const [txn] = await this.db
       .insert(walletTransactions)
       .values({
         walletId: wallet.id,
-        type: 'withdrawal',
-        direction: 'debit',
+        type: "withdrawal",
+        direction: "debit",
         amount: dto.amount,
-        status: 'pending',
-        sourceType: 'withdrawal_request',
+        status: "pending",
+        sourceType: "withdrawal_request",
         notes: dto.notes ?? null,
         requestedBy: userId,
       })
@@ -109,25 +114,37 @@ export class WalletService {
       .where(eq(walletTransactions.id, txnId))
       .limit(1);
 
-    if (!txn) throw new NotFoundException('Transaction not found');
-    if (txn.requestedBy !== userId) throw new BadRequestException('Not your transaction');
-    if (txn.status !== 'pending') throw new BadRequestException('Can only cancel pending transactions');
+    if (!txn) throw new NotFoundException("Transaction not found");
+    if (txn.requestedBy !== userId)
+      throw new BadRequestException("Not your transaction");
+    if (txn.status !== "pending")
+      throw new BadRequestException("Can only cancel pending transactions");
 
     await this.db
       .update(walletTransactions)
-      .set({ status: 'cancelled' })
+      .set({ status: "cancelled" })
       .where(eq(walletTransactions.id, txnId));
   }
 
-  async confirmWithdrawal(txnId: string, dto: ConfirmWithdrawalDto, actorId: string): Promise<void> {
+  async confirmWithdrawal(
+    txnId: string,
+    dto: ConfirmWithdrawalDto,
+    actorId: string,
+  ): Promise<void> {
     const [txn] = await this.db
       .select()
       .from(walletTransactions)
-      .where(and(eq(walletTransactions.id, txnId), eq(walletTransactions.type, 'withdrawal')))
+      .where(
+        and(
+          eq(walletTransactions.id, txnId),
+          eq(walletTransactions.type, "withdrawal"),
+        ),
+      )
       .limit(1);
 
-    if (!txn) throw new NotFoundException('Withdrawal not found');
-    if (txn.status !== 'pending') throw new BadRequestException('Withdrawal is not pending');
+    if (!txn) throw new NotFoundException("Withdrawal not found");
+    if (txn.status !== "pending")
+      throw new BadRequestException("Withdrawal is not pending");
 
     await this.db.transaction(async (tx) => {
       await tx
@@ -143,13 +160,20 @@ export class WalletService {
       if (dto.status === WalletTxnStatus.CONFIRMED) {
         await tx
           .update(wallets)
-          .set({ balance: sql`${wallets.balance} - ${txn.amount}`, updatedAt: new Date() })
+          .set({
+            balance: sql`${wallets.balance} - ${txn.amount}`,
+            updatedAt: new Date(),
+          })
           .where(eq(wallets.id, txn.walletId));
       }
     });
   }
 
-  async manualAdjust(userId: string, dto: ManualAdjustmentDto, actorId: string): Promise<void> {
+  async manualAdjust(
+    userId: string,
+    dto: ManualAdjustmentDto,
+    actorId: string,
+  ): Promise<void> {
     await this.ensureWallet(userId);
     const [wallet] = await this.db
       .select()
@@ -157,7 +181,10 @@ export class WalletService {
       .where(eq(wallets.userId, userId))
       .limit(1);
 
-    const type = dto.direction === WalletTxnDirection.CREDIT ? 'manual_credit' : 'manual_debit';
+    const type =
+      dto.direction === WalletTxnDirection.CREDIT
+        ? "manual_credit"
+        : "manual_debit";
 
     await this.db.transaction(async (tx) => {
       await tx.insert(walletTransactions).values({
@@ -165,18 +192,22 @@ export class WalletService {
         type,
         direction: dto.direction,
         amount: dto.amount,
-        status: 'confirmed',
-        sourceType: 'manual',
+        status: "confirmed",
+        sourceType: "manual",
         notes: dto.notes,
         requestedBy: actorId,
         confirmedBy: actorId,
         confirmedAt: new Date(),
       });
 
-      const delta = dto.direction === WalletTxnDirection.CREDIT ? dto.amount : -dto.amount;
+      const delta =
+        dto.direction === WalletTxnDirection.CREDIT ? dto.amount : -dto.amount;
       await tx
         .update(wallets)
-        .set({ balance: sql`${wallets.balance} + ${delta}`, updatedAt: new Date() })
+        .set({
+          balance: sql`${wallets.balance} + ${delta}`,
+          updatedAt: new Date(),
+        })
         .where(eq(wallets.id, wallet.id));
     });
   }
@@ -185,7 +216,12 @@ export class WalletService {
     const rows = await this.db
       .select()
       .from(walletTransactions)
-      .where(and(eq(walletTransactions.type, 'withdrawal'), eq(walletTransactions.status, 'pending')))
+      .where(
+        and(
+          eq(walletTransactions.type, "withdrawal"),
+          eq(walletTransactions.status, "pending"),
+        ),
+      )
       .orderBy(sql`${walletTransactions.createdAt} asc`);
     return rows.map(this.mapTxn);
   }
@@ -198,7 +234,7 @@ export class WalletService {
       direction: t.direction as WalletTxnDirection,
       amount: t.amount,
       status: t.status as WalletTxnStatus,
-      sourceType: t.sourceType as WalletTransaction['sourceType'],
+      sourceType: t.sourceType as WalletTransaction["sourceType"],
       sourceId: t.sourceId,
       notes: t.notes,
       requestedBy: t.requestedBy,

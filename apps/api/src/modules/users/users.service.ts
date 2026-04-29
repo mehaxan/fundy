@@ -1,8 +1,8 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import { DB, DrizzleDB } from '../../database/database.module';
-import { users } from '../../database/schema';
-import { User } from '@fundy/shared';
+import { Injectable, Inject, NotFoundException } from "@nestjs/common";
+import { eq } from "drizzle-orm";
+import { DB, DrizzleDB } from "../../database/database.module";
+import { users } from "../../database/schema";
+import { User } from "@fundy/shared";
 
 @Injectable()
 export class UsersService {
@@ -22,7 +22,7 @@ export class UsersService {
       .where(eq(users.id, id))
       .limit(1);
 
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException("User not found");
     return { ...user, createdAt: user.createdAt.toISOString() };
   }
 

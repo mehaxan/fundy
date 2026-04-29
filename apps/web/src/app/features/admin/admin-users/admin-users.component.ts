@@ -1,26 +1,35 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { UserRole } from '@fundy/shared';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { MatTableModule } from "@angular/material/table";
+import { MatButtonModule } from "@angular/material/button";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatSelectModule } from "@angular/material/select";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatIconModule } from "@angular/material/icon";
+import { UserRole } from "@fundy/shared";
 
 @Component({
-  selector: 'app-admin-users',
+  selector: "app-admin-users",
   standalone: true,
   imports: [
-    MatTableModule, MatButtonModule, MatChipsModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule,
-    ReactiveFormsModule, MatIconModule,
+    MatTableModule,
+    MatButtonModule,
+    MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatIconModule,
   ],
   template: `
     <h2>Users</h2>
-    <button mat-flat-button color="primary" (click)="showInvite.set(!showInvite())">
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="showInvite.set(!showInvite())"
+    >
       <mat-icon>person_add</mat-icon> Invite User
     </button>
 
@@ -42,8 +51,17 @@ import { UserRole } from '@fundy/shared';
               <mat-option value="manager">Manager</mat-option>
             </mat-select>
           </mat-form-field>
-          <button mat-flat-button color="primary" type="submit" [disabled]="inviteForm.invalid">Send Invite</button>
-          <button mat-button type="button" (click)="showInvite.set(false)">Cancel</button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="inviteForm.invalid"
+          >
+            Send Invite
+          </button>
+          <button mat-button type="button" (click)="showInvite.set(false)">
+            Cancel
+          </button>
         </form>
       </div>
     }
@@ -59,7 +77,9 @@ import { UserRole } from '@fundy/shared';
       </ng-container>
       <ng-container matColumnDef="role">
         <th mat-header-cell *matHeaderCellDef>Role</th>
-        <td mat-cell *matCellDef="let u"><mat-chip>{{ u.role }}</mat-chip></td>
+        <td mat-cell *matCellDef="let u">
+          <mat-chip>{{ u.role }}</mat-chip>
+        </td>
       </ng-container>
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
@@ -70,14 +90,27 @@ import { UserRole } from '@fundy/shared';
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
     </table>
   `,
-  styles: [`
-    .invite-form { max-width: 480px; margin: 16px 0; display: flex; flex-direction: column; gap: 8px; }
-    mat-form-field { width: 100%; }
-    .full-width { width: 100%; margin-top: 16px; }
-  `],
+  styles: [
+    `
+      .invite-form {
+        max-width: 480px;
+        margin: 16px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      mat-form-field {
+        width: 100%;
+      }
+      .full-width {
+        width: 100%;
+        margin-top: 16px;
+      }
+    `,
+  ],
 })
 export class AdminUsersComponent implements OnInit {
   private readonly http = inject(HttpClient);
@@ -85,27 +118,33 @@ export class AdminUsersComponent implements OnInit {
 
   readonly users = signal<any[]>([]);
   readonly showInvite = signal(false);
-  readonly columns = ['name', 'email', 'role', 'actions'];
+  readonly columns = ["name", "email", "role", "actions"];
 
   readonly inviteForm = this.fb.group({
-    name: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
+    name: ["", Validators.required],
+    email: ["", [Validators.required, Validators.email]],
     role: [UserRole.MEMBER, Validators.required],
   });
 
-  ngOnInit() { this.load(); }
+  ngOnInit() {
+    this.load();
+  }
 
   load() {
-    this.http.get<any[]>('/api/admin/users').subscribe((u) => this.users.set(u));
+    this.http
+      .get<any[]>("/api/admin/users")
+      .subscribe((u) => this.users.set(u));
   }
 
   invite() {
     if (this.inviteForm.invalid) return;
-    this.http.post('/api/admin/users/invite', this.inviteForm.getRawValue()).subscribe(() => {
-      this.showInvite.set(false);
-      this.inviteForm.reset({ role: UserRole.MEMBER });
-      this.load();
-    });
+    this.http
+      .post("/api/admin/users/invite", this.inviteForm.getRawValue())
+      .subscribe(() => {
+        this.showInvite.set(false);
+        this.inviteForm.reset({ role: UserRole.MEMBER });
+        this.load();
+      });
   }
 
   deactivate(id: string) {

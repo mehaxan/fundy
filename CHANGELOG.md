@@ -10,12 +10,14 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Project Setup
+
 - Initialized pnpm workspace monorepo (`apps/api`, `apps/web`, `packages/shared`)
 - Added Architecture Decision Records (ADRs 0001–0010)
 - Added feature specification docs for all core features
 - Configured `.gitignore`, `pnpm-workspace.yaml`, root `package.json`
 
 ### Planned for v0.1.0 (MVP)
+
 - [ ] `@fundy/shared` — shared TypeScript types (users, funds, investments, wallet)
 - [ ] API scaffold — NestJS + Cloudflare Workers adapter + Drizzle ORM
 - [ ] Database schema + initial D1 migrations

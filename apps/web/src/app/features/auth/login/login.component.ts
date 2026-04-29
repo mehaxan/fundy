@@ -1,20 +1,24 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from '../../../core/auth/auth.service';
+import { Component, inject, signal } from "@angular/core";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatCardModule } from "@angular/material/card";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { AuthService } from "../../../core/auth/auth.service";
 
 @Component({
-  selector: 'app-login',
+  selector: "app-login",
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MatCardModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatIconModule, MatProgressSpinnerModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="login-container">
@@ -28,7 +32,12 @@ import { AuthService } from '../../../core/auth/auth.service';
           <form [formGroup]="form" (ngSubmit)="submit()">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email" autocomplete="email" />
+              <input
+                matInput
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+              />
               <mat-error>Enter a valid email</mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
@@ -39,8 +48,15 @@ import { AuthService } from '../../../core/auth/auth.service';
                 formControlName="password"
                 autocomplete="current-password"
               />
-              <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())">
-                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="showPassword.set(!showPassword())"
+              >
+                <mat-icon>{{
+                  showPassword() ? "visibility_off" : "visibility"
+                }}</mat-icon>
               </button>
               <mat-error>Password required (min 8 chars)</mat-error>
             </mat-form-field>
@@ -65,13 +81,35 @@ import { AuthService } from '../../../core/auth/auth.service';
       </mat-card>
     </div>
   `,
-  styles: [`
-    .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f5f5f5; }
-    .login-card { width: 400px; padding: 16px; }
-    .full-width { width: 100%; }
-    form { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
-    .error-msg { color: #f44336; font-size: 0.875rem; margin: 0; }
-  `],
+  styles: [
+    `
+      .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: #f5f5f5;
+      }
+      .login-card {
+        width: 400px;
+        padding: 16px;
+      }
+      .full-width {
+        width: 100%;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .error-msg {
+        color: #f44336;
+        font-size: 0.875rem;
+        margin: 0;
+      }
+    `,
+  ],
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
@@ -82,8 +120,8 @@ export class LoginComponent {
   readonly error = signal<string | null>(null);
 
   readonly form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    email: ["", [Validators.required, Validators.email]],
+    password: ["", [Validators.required, Validators.minLength(8)]],
   });
 
   submit() {
@@ -94,7 +132,7 @@ export class LoginComponent {
     const { email, password } = this.form.getRawValue();
     this.auth.login(email!, password!).subscribe({
       error: () => {
-        this.error.set('Invalid email or password');
+        this.error.set("Invalid email or password");
         this.loading.set(false);
       },
     });

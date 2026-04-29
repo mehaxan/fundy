@@ -1,19 +1,19 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { tap, catchError, EMPTY } from 'rxjs';
-import { JwtPayload, UserRole, AuthTokens } from '@fundy/shared';
+import { Injectable, signal, computed } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Router } from "@angular/router";
+import { tap, catchError, EMPTY } from "rxjs";
+import { JwtPayload, UserRole, AuthTokens } from "@fundy/shared";
 
 function parseJwt(token: string): JwtPayload | null {
   try {
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     return JSON.parse(atob(base64)) as JwtPayload;
   } catch {
     return null;
   }
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthService {
   private _accessToken = signal<string | null>(null);
   private _user = computed(() => {
@@ -38,33 +38,37 @@ export class AuthService {
   }
 
   login(email: string, password: string) {
-    return this.http.post<AuthTokens>('/api/auth/login', { email, password }).pipe(
-      tap((res) => {
-        this._accessToken.set(res.accessToken);
-        this.router.navigate(['/dashboard']);
-      }),
-    );
+    return this.http
+      .post<AuthTokens>("/api/auth/login", { email, password })
+      .pipe(
+        tap((res) => {
+          this._accessToken.set(res.accessToken);
+          this.router.navigate(["/dashboard"]);
+        }),
+      );
   }
 
   refresh() {
-    return this.http.post<AuthTokens>('/api/auth/refresh', {}, { withCredentials: true }).pipe(
-      tap((res) => this._accessToken.set(res.accessToken)),
-      catchError(() => {
-        this.clearSession();
-        return EMPTY;
-      }),
-    );
+    return this.http
+      .post<AuthTokens>("/api/auth/refresh", {}, { withCredentials: true })
+      .pipe(
+        tap((res) => this._accessToken.set(res.accessToken)),
+        catchError(() => {
+          this.clearSession();
+          return EMPTY;
+        }),
+      );
   }
 
   logout() {
-    return this.http.post('/api/auth/logout', {}).pipe(
+    return this.http.post("/api/auth/logout", {}).pipe(
       tap(() => {
         this.clearSession();
-        this.router.navigate(['/auth/login']);
+        this.router.navigate(["/auth/login"]);
       }),
       catchError(() => {
         this.clearSession();
-        this.router.navigate(['/auth/login']);
+        this.router.navigate(["/auth/login"]);
         return EMPTY;
       }),
     );

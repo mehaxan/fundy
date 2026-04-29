@@ -3,18 +3,24 @@ import {
   Inject,
   NotFoundException,
   BadRequestException,
-} from '@nestjs/common';
-import { eq, and, sql } from 'drizzle-orm';
-import { DB, DrizzleDB } from '../../database/database.module';
-import { investments, shares, wallets, walletTransactions, depositFunds } from '../../database/schema';
+} from "@nestjs/common";
+import { eq, and, sql } from "drizzle-orm";
+import { DB, DrizzleDB } from "../../database/database.module";
+import {
+  investments,
+  shares,
+  wallets,
+  walletTransactions,
+  depositFunds,
+} from "../../database/schema";
 import {
   Investment,
   InvestmentStatus,
   InvestmentDistribution,
   CreateInvestmentDto,
   UpdateInvestmentDto,
-} from '@fundy/shared';
-import { WalletService } from '../wallet/wallet.service';
+} from "@fundy/shared";
+import { WalletService } from "../wallet/wallet.service";
 
 @Injectable()
 export class InvestmentsService {
@@ -37,17 +43,21 @@ export class InvestmentsService {
       .from(investments)
       .where(eq(investments.id, id))
       .limit(1);
-    if (!inv) throw new NotFoundException('Investment not found');
+    if (!inv) throw new NotFoundException("Investment not found");
     return this.mapInvestment(inv);
   }
 
-  async create(fundId: string, dto: CreateInvestmentDto, createdBy: string): Promise<Investment> {
+  async create(
+    fundId: string,
+    dto: CreateInvestmentDto,
+    createdBy: string,
+  ): Promise<Investment> {
     const [fund] = await this.db
       .select()
       .from(depositFunds)
       .where(eq(depositFunds.id, fundId))
       .limit(1);
-    if (!fund) throw new NotFoundException('Fund not found');
+    if (!fund) throw new NotFoundException("Fund not found");
 
     const [inv] = await this.db
       .insert(investments)
@@ -65,25 +75,33 @@ export class InvestmentsService {
     return this.mapInvestment(inv);
   }
 
-  async update(id: string, dto: UpdateInvestmentDto, actorId: string): Promise<Investment> {
+  async update(
+    id: string,
+    dto: UpdateInvestmentDto,
+    actorId: string,
+  ): Promise<Investment> {
     const [inv] = await this.db
       .select()
       .from(investments)
       .where(eq(investments.id, id))
       .limit(1);
 
-    if (!inv) throw new NotFoundException('Investment not found');
+    if (!inv) throw new NotFoundException("Investment not found");
 
     if (
       inv.status === InvestmentStatus.COMPLETED ||
       inv.status === InvestmentStatus.CANCELLED
     ) {
-      throw new BadRequestException('Cannot update a completed or cancelled investment');
+      throw new BadRequestException(
+        "Cannot update a completed or cancelled investment",
+      );
     }
 
     if (dto.status === InvestmentStatus.COMPLETED) {
       if (!dto.returnAmount && dto.returnAmount !== 0) {
-        throw new BadRequestException('returnAmount is required when completing an investment');
+        throw new BadRequestException(
+          "returnAmount is required when completing an investment",
+        );
       }
       await this.distributeProfit(inv, dto.returnAmount, actorId);
     }
@@ -92,7 +110,8 @@ export class InvestmentsService {
       updatedAt: new Date(),
     };
     if (dto.name) updates.name = dto.name;
-    if (dto.description !== undefined) updates.description = dto.description ?? null;
+    if (dto.description !== undefined)
+      updates.description = dto.description ?? null;
     if (dto.status) updates.status = dto.status;
     if (dto.returnAmount !== undefined) updates.returnAmount = dto.returnAmount;
     if (dto.startDate) updates.startDate = new Date(dto.startDate);
@@ -114,15 +133,15 @@ export class InvestmentsService {
       .from(investments)
       .where(eq(investments.id, id))
       .limit(1);
-    if (!inv) throw new NotFoundException('Investment not found');
+    if (!inv) throw new NotFoundException("Investment not found");
 
     const memberShares = await this.db
       .select({
         userId: shares.userId,
-        total: sql<number>`sum(${shares.quantity})`.as('total'),
+        total: sql<number>`sum(${shares.quantity})`.as("total"),
       })
       .from(shares)
-      .where(and(eq(shares.fundId, inv.fundId), eq(shares.status, 'confirmed')))
+      .where(and(eq(shares.fundId, inv.fundId), eq(shares.status, "confirmed")))
       .groupBy(shares.userId);
 
     const totalShares = memberShares.reduce((s, m) => s + m.total, 0);
@@ -132,12 +151,21 @@ export class InvestmentsService {
     const distributions = memberShares.map((m) => {
       const amount = Math.floor((profit * m.total) / totalShares);
       remainder -= amount;
-      return { userId: m.userId, userName: '', userEmail: '', shares: m.total, sharePercent: 0, amount };
+      return {
+        userId: m.userId,
+        userName: "",
+        userEmail: "",
+        shares: m.total,
+        sharePercent: 0,
+        amount,
+      };
     });
 
     // Add rounding remainder to largest shareholder
     if (remainder !== 0 && distributions.length > 0) {
-      const largest = distributions.reduce((a, b) => (a.shares > b.shares ? a : b));
+      const largest = distributions.reduce((a, b) =>
+        a.shares > b.shares ? a : b,
+      );
       largest.amount += remainder;
     }
 
@@ -152,10 +180,10 @@ export class InvestmentsService {
     const memberShares = await this.db
       .select({
         userId: shares.userId,
-        total: sql<number>`sum(${shares.quantity})`.as('total'),
+        total: sql<number>`sum(${shares.quantity})`.as("total"),
       })
       .from(shares)
-      .where(and(eq(shares.fundId, inv.fundId), eq(shares.status, 'confirmed')))
+      .where(and(eq(shares.fundId, inv.fundId), eq(shares.status, "confirmed")))
       .groupBy(shares.userId);
 
     if (memberShares.length === 0) return;
@@ -165,11 +193,13 @@ export class InvestmentsService {
     const isLoss = profit < 0;
 
     let remainder = profit;
-    const credits: { userId: string; amount: number }[] = memberShares.map((m) => {
-      const amount = Math.floor((profit * m.total) / totalShares);
-      remainder -= amount;
-      return { userId: m.userId, amount };
-    });
+    const credits: { userId: string; amount: number }[] = memberShares.map(
+      (m) => {
+        const amount = Math.floor((profit * m.total) / totalShares);
+        remainder -= amount;
+        return { userId: m.userId, amount };
+      },
+    );
     if (remainder !== 0 && credits.length > 0) {
       const largest = credits.reduce((a, b) =>
         (memberShares.find((m) => m.userId === a.userId)?.total ?? 0) >=
@@ -193,8 +223,8 @@ export class InvestmentsService {
           .where(eq(wallets.userId, credit.userId))
           .limit(1);
 
-        const type = isLoss ? 'investment_loss' : 'investment_profit';
-        const direction = isLoss ? 'debit' : 'credit';
+        const type = isLoss ? "investment_loss" : "investment_profit";
+        const direction = isLoss ? "debit" : "credit";
         const absAmount = Math.abs(credit.amount);
 
         await tx.insert(walletTransactions).values({
@@ -202,8 +232,8 @@ export class InvestmentsService {
           type,
           direction,
           amount: absAmount,
-          status: 'confirmed',
-          sourceType: 'investment_distribution',
+          status: "confirmed",
+          sourceType: "investment_distribution",
           sourceId: inv.id,
           requestedBy: actorId,
           confirmedBy: actorId,
@@ -214,7 +244,10 @@ export class InvestmentsService {
         const balanceDelta = isLoss ? -absAmount : absAmount;
         await tx
           .update(wallets)
-          .set({ balance: sql`${wallets.balance} + ${balanceDelta}`, updatedAt: new Date() })
+          .set({
+            balance: sql`${wallets.balance} + ${balanceDelta}`,
+            updatedAt: new Date(),
+          })
           .where(eq(wallets.id, wallet.id));
       }
     });

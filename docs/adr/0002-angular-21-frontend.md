@@ -11,6 +11,7 @@ We need a frontend framework for a data-heavy financial management application w
 ## Decision
 
 Use **Angular 21** as the frontend framework with:
+
 - Angular Material for UI components
 - Angular Signals for reactive state management
 - Standalone components (no `NgModule`)
@@ -20,6 +21,7 @@ Use **Angular 21** as the frontend framework with:
 ## Consequences
 
 **Positive:**
+
 - Angular's opinionated structure accelerates team onboarding.
 - Built-in form validation (Reactive Forms) suits financial input requirements.
 - Angular Material provides accessible, production-ready UI components (tables, dialogs, datepickers).
@@ -29,14 +31,15 @@ Use **Angular 21** as the frontend framework with:
 - Strong TypeScript integration — aligns with shared types from `@fundy/shared`.
 
 **Negative:**
+
 - Larger initial learning curve compared to Vue or Svelte.
 - Bundle size larger than lighter frameworks.
 - Angular 21 is cutting-edge; some community plugins may lag.
 
 ## Alternatives Considered
 
-| Alternative | Reason rejected |
-|---|---|
+| Alternative     | Reason rejected                                                  |
+| --------------- | ---------------------------------------------------------------- |
 | React (Next.js) | Less opinionated; forms and tables require more third-party libs |
-| Vue 3 + Nuxt | Smaller ecosystem for enterprise-grade financial UIs |
-| SvelteKit | Great DX but immature component ecosystem for this use case |
+| Vue 3 + Nuxt    | Smaller ecosystem for enterprise-grade financial UIs             |
+| SvelteKit       | Great DX but immature component ecosystem for this use case      |

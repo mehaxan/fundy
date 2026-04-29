@@ -10,6 +10,7 @@
 With the backend on Railway (Node.js), we need S3-compatible object storage accessible via HTTP from any environment. Cloudflare R2 is only accessible via Workers `env` bindings in production — using it from a Railway Node.js service requires public bucket exposure or a custom domain proxy, adding complexity.
 
 The app needs to store:
+
 - Transaction receipt photos (uploaded by managers)
 - Fund documents (optional)
 - User avatars
@@ -17,6 +18,7 @@ The app needs to store:
 ## Decision
 
 Use **Tigris** (fly.io global object storage) for object storage. Tigris is:
+
 - Globally distributed S3-compatible object storage
 - Accessible via the standard AWS SDK v3 (`@aws-sdk/client-s3`)
 - Free tier: 5 GB storage, 10,000 PUT/month, 100,000 GET/month
@@ -25,6 +27,7 @@ Use **Tigris** (fly.io global object storage) for object storage. Tigris is:
 ### Configuration
 
 Tigris provides standard S3 credentials:
+
 ```
 AWS_ACCESS_KEY_ID=<tigris-key>
 AWS_SECRET_ACCESS_KEY=<tigris-secret>
@@ -46,6 +49,7 @@ Presigned URLs for private file access (expiry: 1 hour).
 ## Consequences
 
 **Positive:**
+
 - Standard AWS SDK v3 — same code works locally and in production.
 - No egress fees within Tigris network.
 - Globally distributed — low latency for file reads anywhere.
@@ -54,14 +58,15 @@ Presigned URLs for private file access (expiry: 1 hour).
 - No Cloudflare dependency for storage.
 
 **Negative:**
+
 - Free tier limits may require monitoring as usage grows.
 - Tigris is newer than AWS S3 — smaller community documentation.
 
 ## Alternatives Considered
 
-| Alternative | Reason rejected |
-|---|---|
-| Cloudflare R2 | Workers-binding-only access in prod; needs proxy for Railway |
-| AWS S3 | Egress fees; overkill for a friend group app |
-| Supabase Storage | Adds another vendor; Tigris simpler with S3 SDK |
-| Store files in PostgreSQL | Poor performance; DB not designed for binary blobs |
+| Alternative               | Reason rejected                                              |
+| ------------------------- | ------------------------------------------------------------ |
+| Cloudflare R2             | Workers-binding-only access in prod; needs proxy for Railway |
+| AWS S3                    | Egress fees; overkill for a friend group app                 |
+| Supabase Storage          | Adds another vendor; Tigris simpler with S3 SDK              |
+| Store files in PostgreSQL | Poor performance; DB not designed for binary blobs           |

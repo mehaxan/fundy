@@ -11,12 +11,14 @@ Cloudflare Workers are stateless — no traditional session store. We need an au
 ## Decision
 
 Use **JWT (JSON Web Tokens)** for authentication:
+
 - Access token: short-lived (15 minutes), stored in memory (Angular service)
 - Refresh token: long-lived (7 days), stored in `HttpOnly` cookie
 - Tokens signed with `HS256` using a `JWT_SECRET` environment variable (min 32 chars)
 - Refresh endpoint: `POST /auth/refresh`
 
 **Token payload:**
+
 ```json
 {
   "sub": "user-uuid",
@@ -32,6 +34,7 @@ Cloudflare KV stores a **refresh token blocklist** for logout invalidation (TTL 
 ## Consequences
 
 **Positive:**
+
 - Stateless — works natively on Cloudflare Workers.
 - Access token in memory prevents XSS token theft.
 - Refresh token in `HttpOnly` cookie is inaccessible to JavaScript (mitigates XSS).
@@ -39,6 +42,7 @@ Cloudflare KV stores a **refresh token blocklist** for logout invalidation (TTL 
 - KV blocklist handles logout without session store.
 
 **Negative:**
+
 - Access tokens cannot be immediately invalidated until they expire (15 min window).
 - Refresh token rotation must be implemented carefully to prevent replay attacks.
 - `JWT_SECRET` rotation requires re-login for all users.
@@ -52,8 +56,8 @@ Cloudflare KV stores a **refresh token blocklist** for logout invalidation (TTL 
 
 ## Alternatives Considered
 
-| Alternative | Reason rejected |
-|---|---|
-| Session cookies + KV | Requires KV lookup on every request; adds latency |
-| Cloudflare Access | Great for internal tools; too opinionated for custom auth flows |
-| Paseto | Less ecosystem support; same security properties as JWT |
+| Alternative          | Reason rejected                                                 |
+| -------------------- | --------------------------------------------------------------- |
+| Session cookies + KV | Requires KV lookup on every request; adds latency               |
+| Cloudflare Access    | Great for internal tools; too opinionated for custom auth flows |
+| Paseto               | Less ecosystem support; same security properties as JWT         |

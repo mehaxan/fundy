@@ -5,11 +5,13 @@ Thank you for your interest in contributing!
 ## Development Workflow
 
 1. **Fork** the repository and create a branch from `main`:
+
    ```bash
    git checkout -b feat/your-feature-name
    ```
 
 2. **Install dependencies:**
+
    ```bash
    pnpm install
    ```
@@ -17,6 +19,7 @@ Thank you for your interest in contributing!
 3. **Make changes** following the conventions below.
 
 4. **Run checks locally** before pushing:
+
    ```bash
    pnpm lint
    pnpm --filter api type-check
@@ -28,6 +31,7 @@ Thank you for your interest in contributing!
 ## Conventions
 
 ### Branch Naming
+
 - `feat/<name>` — new feature
 - `fix/<name>` — bug fix
 - `docs/<name>` — documentation only
@@ -35,6 +39,7 @@ Thank you for your interest in contributing!
 - `chore/<name>` — tooling, deps, config
 
 ### Commit Messages (Conventional Commits)
+
 ```
 feat(wallet): add withdrawal request endpoint
 fix(auth): correct refresh token expiry header
@@ -42,6 +47,7 @@ docs(adr): add ADR-0011 for email provider
 ```
 
 ### Code Style
+
 - TypeScript strict mode — no `any`
 - Prettier formats automatically on commit (configured in `.prettierrc`)
 - NestJS: keep controllers thin; business logic in services

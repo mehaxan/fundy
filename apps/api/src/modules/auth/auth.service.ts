@@ -3,17 +3,21 @@ import {
   UnauthorizedException,
   BadRequestException,
   ForbiddenException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { Inject } from '@nestjs/common';
-import { eq, and, gt, isNull } from 'drizzle-orm';
-import * as bcrypt from 'bcrypt';
-import { DB, DrizzleDB } from '../../database/database.module';
-import { users, refreshTokens, passwordResetTokens } from '../../database/schema';
-import { LoginDto, JwtPayload } from '@fundy/shared';
-import { nanoid } from 'nanoid';
-import { createHash } from 'crypto';
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import { Inject } from "@nestjs/common";
+import { eq, and, gt, isNull } from "drizzle-orm";
+import * as bcrypt from "bcrypt";
+import { DB, DrizzleDB } from "../../database/database.module";
+import {
+  users,
+  refreshTokens,
+  passwordResetTokens,
+} from "../../database/schema";
+import { LoginDto, JwtPayload } from "@fundy/shared";
+import { nanoid } from "nanoid";
+import { createHash } from "crypto";
 
 @Injectable()
 export class AuthService {
@@ -31,15 +35,19 @@ export class AuthService {
       .limit(1);
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!valid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
-    const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = nanoid(64);
     const tokenHash = this.hashToken(refreshToken);
@@ -53,19 +61,19 @@ export class AuthService {
       expiresAt,
     });
 
-    res.cookie('refresh_token', refreshToken, {
+    res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: this.config.get('NODE_ENV') === 'production',
-      sameSite: 'strict',
+      secure: this.config.get("NODE_ENV") === "production",
+      sameSite: "strict",
       expires: expiresAt,
-      path: '/auth',
+      path: "/auth",
     });
 
     return { accessToken };
   }
 
   async refresh(rawToken: string | undefined) {
-    if (!rawToken) throw new UnauthorizedException('No refresh token');
+    if (!rawToken) throw new UnauthorizedException("No refresh token");
 
     const tokenHash = this.hashToken(rawToken);
     const now = new Date();
@@ -82,7 +90,8 @@ export class AuthService {
       )
       .limit(1);
 
-    if (!stored) throw new UnauthorizedException('Invalid or expired refresh token');
+    if (!stored)
+      throw new UnauthorizedException("Invalid or expired refresh token");
 
     const [user] = await this.db
       .select()
@@ -90,7 +99,7 @@ export class AuthService {
       .where(eq(users.id, stored.userId))
       .limit(1);
 
-    if (!user || !user.isActive) throw new ForbiddenException('User inactive');
+    if (!user || !user.isActive) throw new ForbiddenException("User inactive");
 
     // Rotate: revoke old token
     await this.db
@@ -98,7 +107,11 @@ export class AuthService {
       .set({ revokedAt: now })
       .where(eq(refreshTokens.id, stored.id));
 
-    const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
     const accessToken = this.jwtService.sign(payload);
 
     return { accessToken };
@@ -153,7 +166,8 @@ export class AuthService {
       )
       .limit(1);
 
-    if (!stored) throw new BadRequestException('Invalid or expired reset token');
+    if (!stored)
+      throw new BadRequestException("Invalid or expired reset token");
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
 
@@ -170,11 +184,16 @@ export class AuthService {
       this.db
         .update(refreshTokens)
         .set({ revokedAt: now })
-        .where(and(eq(refreshTokens.userId, stored.userId), isNull(refreshTokens.revokedAt))),
+        .where(
+          and(
+            eq(refreshTokens.userId, stored.userId),
+            isNull(refreshTokens.revokedAt),
+          ),
+        ),
     ]);
   }
 
   private hashToken(token: string): string {
-    return createHash('sha256').update(token).digest('hex');
+    return createHash("sha256").update(token).digest("hex");
   }
 }

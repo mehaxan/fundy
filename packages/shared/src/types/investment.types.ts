@@ -1,8 +1,8 @@
 export enum InvestmentStatus {
-  PLANNED = 'planned',
-  ACTIVE = 'active',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
+  PLANNED = "planned",
+  ACTIVE = "active",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
 }
 
 export interface Investment {

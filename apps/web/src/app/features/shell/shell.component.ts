@@ -1,19 +1,24 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { AuthService } from '../../core/auth/auth.service';
+import { Component, inject } from "@angular/core";
+import { RouterOutlet, RouterLink, RouterLinkActive } from "@angular/router";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatSidenavModule } from "@angular/material/sidenav";
+import { MatListModule } from "@angular/material/list";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { AuthService } from "../../core/auth/auth.service";
 
 @Component({
-  selector: 'app-shell',
+  selector: "app-shell",
   standalone: true,
   imports: [
-    RouterOutlet, RouterLink, RouterLinkActive,
-    MatToolbarModule, MatSidenavModule, MatListModule,
-    MatIconModule, MatButtonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
   ],
   template: `
     <mat-sidenav-container class="sidenav-container">
@@ -59,17 +64,53 @@ import { AuthService } from '../../core/auth/auth.service';
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
-  styles: [`
-    .sidenav-container { height: 100vh; }
-    .sidenav { width: 220px; display: flex; flex-direction: column; padding: 0; }
-    .brand { display: flex; align-items: center; gap: 8px; padding: 16px; font-size: 1.25rem; font-weight: 700; }
-    .sidenav-footer { margin-top: auto; padding: 8px; }
-    .content { display: flex; flex-direction: column; }
-    .page-content { padding: 24px; flex: 1; overflow: auto; }
-    .role-badge { margin-left: 8px; font-size: 0.75rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; }
-    mat-toolbar { justify-content: flex-end; }
-    a.active { background: rgba(0,0,0,0.08); }
-  `],
+  styles: [
+    `
+      .sidenav-container {
+        height: 100vh;
+      }
+      .sidenav {
+        width: 220px;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 16px;
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+      .sidenav-footer {
+        margin-top: auto;
+        padding: 8px;
+      }
+      .content {
+        display: flex;
+        flex-direction: column;
+      }
+      .page-content {
+        padding: 24px;
+        flex: 1;
+        overflow: auto;
+      }
+      .role-badge {
+        margin-left: 8px;
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 12px;
+      }
+      mat-toolbar {
+        justify-content: flex-end;
+      }
+      a.active {
+        background: rgba(0, 0, 0, 0.08);
+      }
+    `,
+  ],
 })
 export class ShellComponent {
   readonly auth = inject(AuthService);

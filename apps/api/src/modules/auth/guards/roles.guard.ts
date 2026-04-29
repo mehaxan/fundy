@@ -1,7 +1,12 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { UserRole } from '@fundy/shared';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { UserRole } from "@fundy/shared";
+import { ROLES_KEY } from "../decorators/roles.decorator";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -28,7 +33,7 @@ export class RolesGuard implements CanActivate {
     const minRequired = Math.min(...required.map((r) => hierarchy[r]));
 
     if (userLevel < minRequired) {
-      throw new ForbiddenException('Insufficient permissions');
+      throw new ForbiddenException("Insufficient permissions");
     }
 
     return true;

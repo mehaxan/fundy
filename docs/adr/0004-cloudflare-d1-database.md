@@ -30,6 +30,7 @@ refresh_tokens  → id, user_id, token_hash, expires_at, revoked_at
 ## Consequences
 
 **Positive:**
+
 - Full SQL feature set: joins, window functions, CTEs, row-level locking (critical for atomic wallet updates).
 - ACID-compliant — financial records require strong consistency.
 - `DATABASE_URL` is standard; works with all PostgreSQL tooling.
@@ -38,14 +39,15 @@ refresh_tokens  → id, user_id, token_hash, expires_at, revoked_at
 - Railway free tier: 1 GB storage; sufficient for a small friend group.
 
 **Negative:**
+
 - Requires connection pooling in production (handled by `postgres` library's built-in pool).
 - Migrations are applied in CI/CD pipeline — must test locally first to avoid destructive mistakes.
 
 ## Alternatives Considered
 
-| Alternative | Reason rejected |
-|---|---|
-| Cloudflare D1 | Only accessible via Workers binding; incompatible with Railway Node.js |
-| Neon (serverless PostgreSQL) | Extra provider; Railway PG simpler when already on Railway |
-| PlanetScale (MySQL) | Different SQL dialect; not PostgreSQL |
-| SQLite on Railway volume | Not suitable for concurrent writes in production |
+| Alternative                  | Reason rejected                                                        |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| Cloudflare D1                | Only accessible via Workers binding; incompatible with Railway Node.js |
+| Neon (serverless PostgreSQL) | Extra provider; Railway PG simpler when already on Railway             |
+| PlanetScale (MySQL)          | Different SQL dialect; not PostgreSQL                                  |
+| SQLite on Railway volume     | Not suitable for concurrent writes in production                       |

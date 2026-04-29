@@ -3,12 +3,15 @@ import {
   HttpRequest,
   HttpHandlerFn,
   HttpErrorResponse,
-} from '@angular/common/http';
-import { inject } from '@angular/core';
-import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthService } from './auth.service';
+} from "@angular/common/http";
+import { inject } from "@angular/core";
+import { catchError, switchMap, throwError } from "rxjs";
+import { AuthService } from "./auth.service";
 
-export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
+export const authInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+) => {
   const auth = inject(AuthService);
 
   const addToken = (r: HttpRequest<unknown>) => {
@@ -20,7 +23,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   return next(addToken(req)).pipe(
     catchError((err: HttpErrorResponse) => {
-      if (err.status === 401 && !req.url.includes('/auth/')) {
+      if (err.status === 401 && !req.url.includes("/auth/")) {
         return auth.refresh().pipe(
           switchMap(() => next(addToken(req))),
           catchError((refreshErr) => throwError(() => refreshErr)),

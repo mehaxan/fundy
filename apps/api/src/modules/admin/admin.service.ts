@@ -1,12 +1,18 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
-import { DB, DrizzleDB } from '../../database/database.module';
-import { users, wallets, walletTransactions } from '../../database/schema';
-import { WalletTxnDirection, WalletTxnStatus, ManualAdjustmentDto, UpdateUserRoleDto, UserRole } from '@fundy/shared';
-import { UsersService } from '../users/users.service';
-import { WalletService } from '../wallet/wallet.service';
-import * as bcrypt from 'bcrypt';
-import { nanoid } from 'nanoid';
+import { Injectable, Inject } from "@nestjs/common";
+import { eq, sql } from "drizzle-orm";
+import { DB, DrizzleDB } from "../../database/database.module";
+import { users, wallets, walletTransactions } from "../../database/schema";
+import {
+  WalletTxnDirection,
+  WalletTxnStatus,
+  ManualAdjustmentDto,
+  UpdateUserRoleDto,
+  UserRole,
+} from "@fundy/shared";
+import { UsersService } from "../users/users.service";
+import { WalletService } from "../wallet/wallet.service";
+import * as bcrypt from "bcrypt";
+import { nanoid } from "nanoid";
 
 @Injectable()
 export class AdminService {
@@ -21,12 +27,18 @@ export class AdminService {
   }
 
   async updateUserRole(userId: string, dto: UpdateUserRoleDto) {
-    await this.db.update(users).set({ role: dto.role }).where(eq(users.id, userId));
+    await this.db
+      .update(users)
+      .set({ role: dto.role })
+      .where(eq(users.id, userId));
     return this.usersService.findById(userId);
   }
 
   async deactivateUser(userId: string) {
-    await this.db.update(users).set({ isActive: false }).where(eq(users.id, userId));
+    await this.db
+      .update(users)
+      .set({ isActive: false })
+      .where(eq(users.id, userId));
   }
 
   async inviteUser(email: string, name: string, role: UserRole) {
@@ -61,11 +73,22 @@ export class AdminService {
     return this.walletService.getAllPendingWithdrawals();
   }
 
-  async confirmWithdrawal(txnId: string, dto: { status: WalletTxnStatus.CONFIRMED | WalletTxnStatus.REJECTED; notes?: string }, actorId: string) {
+  async confirmWithdrawal(
+    txnId: string,
+    dto: {
+      status: WalletTxnStatus.CONFIRMED | WalletTxnStatus.REJECTED;
+      notes?: string;
+    },
+    actorId: string,
+  ) {
     return this.walletService.confirmWithdrawal(txnId, dto, actorId);
   }
 
-  async manualAdjust(userId: string, dto: ManualAdjustmentDto, actorId: string) {
+  async manualAdjust(
+    userId: string,
+    dto: ManualAdjustmentDto,
+    actorId: string,
+  ) {
     return this.walletService.manualAdjust(userId, dto, actorId);
   }
 }

@@ -1,7 +1,14 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { eq, sql, and } from 'drizzle-orm';
-import { DB, DrizzleDB } from '../../database/database.module';
-import { users, wallets, walletTransactions, depositFunds, shares, investments } from '../../database/schema';
+import { Injectable, Inject } from "@nestjs/common";
+import { eq, sql, and } from "drizzle-orm";
+import { DB, DrizzleDB } from "../../database/database.module";
+import {
+  users,
+  wallets,
+  walletTransactions,
+  depositFunds,
+  shares,
+  investments,
+} from "../../database/schema";
 
 @Injectable()
 export class DashboardService {
@@ -25,12 +32,18 @@ export class DashboardService {
         sharePrice: depositFunds.sharePrice,
         currency: depositFunds.currency,
         status: depositFunds.status,
-        quantity: sql<number>`sum(${shares.quantity})`.as('quantity'),
+        quantity: sql<number>`sum(${shares.quantity})`.as("quantity"),
       })
       .from(shares)
       .innerJoin(depositFunds, eq(shares.fundId, depositFunds.id))
-      .where(and(eq(shares.userId, userId), eq(shares.status, 'confirmed')))
-      .groupBy(shares.fundId, depositFunds.name, depositFunds.sharePrice, depositFunds.currency, depositFunds.status);
+      .where(and(eq(shares.userId, userId), eq(shares.status, "confirmed")))
+      .groupBy(
+        shares.fundId,
+        depositFunds.name,
+        depositFunds.sharePrice,
+        depositFunds.currency,
+        depositFunds.status,
+      );
 
     // Recent transactions (last 5)
     const recentTxns = wallet
@@ -49,7 +62,7 @@ export class DashboardService {
         ? await this.db
             .select()
             .from(investments)
-            .where(and(eq(investments.status, 'active')))
+            .where(and(eq(investments.status, "active")))
         : [];
 
     return {
@@ -64,7 +77,9 @@ export class DashboardService {
         status: s.status,
       })),
       recentTransactions: recentTxns,
-      activeInvestments: activeInvestments.filter((i) => myFundIds.includes(i.fundId)),
+      activeInvestments: activeInvestments.filter((i) =>
+        myFundIds.includes(i.fundId),
+      ),
     };
   }
 
@@ -72,12 +87,17 @@ export class DashboardService {
     const [pendingWithdrawals] = await this.db
       .select({ count: sql<number>`count(*)` })
       .from(walletTransactions)
-      .where(and(eq(walletTransactions.type, 'withdrawal'), eq(walletTransactions.status, 'pending')));
+      .where(
+        and(
+          eq(walletTransactions.type, "withdrawal"),
+          eq(walletTransactions.status, "pending"),
+        ),
+      );
 
     const [pendingDeposits] = await this.db
       .select({ count: sql<number>`count(*)` })
       .from(shares)
-      .where(eq(shares.status, 'pending'));
+      .where(eq(shares.status, "pending"));
 
     const [activeInvestmentsSummary] = await this.db
       .select({
@@ -85,12 +105,12 @@ export class DashboardService {
         totalDeployed: sql<number>`coalesce(sum(${investments.investedAmount}), 0)`,
       })
       .from(investments)
-      .where(eq(investments.status, 'active'));
+      .where(eq(investments.status, "active"));
 
     const [fundsSummary] = await this.db
       .select({ count: sql<number>`count(*)` })
       .from(depositFunds)
-      .where(eq(depositFunds.status, 'active'));
+      .where(eq(depositFunds.status, "active"));
 
     return {
       pendingWithdrawals: pendingWithdrawals.count,

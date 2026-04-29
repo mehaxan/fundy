@@ -7,6 +7,7 @@
 ## Context
 
 Fundy is designed for a small group of friends managing a shared fund. Integrating a payment gateway (Stripe, PayPal, bank API) adds:
+
 - Regulatory and compliance overhead
 - KYC/AML requirements
 - Transaction fees
@@ -48,6 +49,7 @@ PENDING → CONFIRMED → SETTLED
 ## Consequences
 
 **Positive:**
+
 - Zero regulatory requirements (not a financial institution).
 - No payment processor fees.
 - Works in any jurisdiction — no banking partnerships needed.
@@ -55,14 +57,15 @@ PENDING → CONFIRMED → SETTLED
 - Members must trust each other — appropriate for friend groups.
 
 **Negative:**
+
 - Requires trust between participants.
 - Manager must be available to confirm transactions.
 - No automated settlement — human bottleneck.
 
 ## Alternatives Considered
 
-| Alternative | Reason rejected |
-|---|---|
-| Stripe integration | Compliance overhead; fees; overkill for friends |
-| Crypto smart contracts | High complexity; gas fees; UX barrier |
-| Bank Open Banking API | Country-specific; complex OAuth flows |
+| Alternative            | Reason rejected                                 |
+| ---------------------- | ----------------------------------------------- |
+| Stripe integration     | Compliance overhead; fees; overkill for friends |
+| Crypto smart contracts | High complexity; gas fees; UX barrier           |
+| Bank Open Banking API  | Country-specific; complex OAuth flows           |

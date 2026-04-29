@@ -29,6 +29,7 @@ $$\text{profit} = \text{return\_amount} - \text{invested\_amount}$$
 $$\text{member\_profit} = \text{profit} \times \frac{\text{member\_shares}}{\text{total\_fund\_shares}}$$
 
 The system:
+
 1. Calculates each member's profit amount.
 2. Creates a `CREDIT` wallet transaction for each member (status: `CONFIRMED`).
 3. Updates each member's wallet balance.
@@ -36,17 +37,17 @@ The system:
 
 ### Example
 
-| Member | Shares | % |
-|---|---|---|
-| Alice | 3 | 60% |
-| Bob | 2 | 40% |
+| Member | Shares | %   |
+| ------ | ------ | --- |
+| Alice  | 3      | 60% |
+| Bob    | 2      | 40% |
 
 Investment: $5,000 in → $6,500 out → $1,500 profit
 
 | Member | Profit credited |
-|---|---|
-| Alice | $900 (60%) |
-| Bob | $600 (40%) |
+| ------ | --------------- |
+| Alice  | $900 (60%)      |
+| Bob    | $600 (40%)      |
 
 ### Loss Handling
 
@@ -55,12 +56,14 @@ If `return_amount < invested_amount`, the loss is recorded as a negative wallet 
 ## Consequences
 
 **Positive:**
+
 - Simple, auditable, and mathematically transparent.
 - Stored as integers (cents) to avoid floating-point errors.
 - Every distribution is a traceable set of wallet transactions.
 - Members can verify their share percentage at any time.
 
 **Negative:**
+
 - Rounding of cents is possible — remainder (dust) credited to the largest shareholder.
 - No time-weighted returns — members who join mid-fund after first investment round get the same % going forward (by new share count).
 - Loss handling (negative balance) requires UI clarity to avoid confusion.
@@ -73,8 +76,8 @@ If `return_amount < invested_amount`, the loss is recorded as a negative wallet 
 
 ## Alternatives Considered
 
-| Alternative | Reason rejected |
-|---|---|
-| Time-weighted returns | Complex; excessive for a friend group |
+| Alternative                      | Reason rejected                       |
+| -------------------------------- | ------------------------------------- |
+| Time-weighted returns            | Complex; excessive for a friend group |
 | Equal split regardless of shares | Ignores different contribution levels |
-| Manager-defined manual splits | Prone to error and disputes |
+| Manager-defined manual splits    | Prone to error and disputes           |

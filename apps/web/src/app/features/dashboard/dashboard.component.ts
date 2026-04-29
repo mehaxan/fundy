@@ -1,21 +1,26 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatChipsModule } from '@angular/material/chips';
-import { RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe } from '@angular/common';
-import { AuthService } from '../../core/auth/auth.service';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { MatCardModule } from "@angular/material/card";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatChipsModule } from "@angular/material/chips";
+import { RouterLink } from "@angular/router";
+import { CurrencyPipe, DatePipe } from "@angular/common";
+import { AuthService } from "../../core/auth/auth.service";
 
 @Component({
-  selector: 'app-dashboard',
+  selector: "app-dashboard",
   standalone: true,
   imports: [
-    MatCardModule, MatIconModule, MatButtonModule,
-    MatDividerModule, MatChipsModule, RouterLink,
-    CurrencyPipe, DatePipe,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatChipsModule,
+    RouterLink,
+    CurrencyPipe,
+    DatePipe,
   ],
   template: `
     <h1>Dashboard</h1>
@@ -29,7 +34,9 @@ import { AuthService } from '../../core/auth/auth.service';
             <mat-card-title>Wallet Balance</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <p class="balance">{{ summary()!.walletBalance / 100 | currency }}</p>
+            <p class="balance">
+              {{ summary()!.walletBalance / 100 | currency }}
+            </p>
           </mat-card-content>
           <mat-card-actions>
             <a mat-button routerLink="/wallet">View Wallet</a>
@@ -46,7 +53,10 @@ import { AuthService } from '../../core/auth/auth.service';
             @for (fund of summary()!.funds; track fund.fundId) {
               <div class="fund-item">
                 <span class="fund-name">{{ fund.fundName }}</span>
-                <span>{{ fund.shares }} shares · {{ fund.totalValue / 100 | currency }}</span>
+                <span
+                  >{{ fund.shares }} shares ·
+                  {{ fund.totalValue / 100 | currency }}</span
+                >
                 <mat-chip [class]="fund.status">{{ fund.status }}</mat-chip>
               </div>
               <mat-divider />
@@ -69,8 +79,14 @@ import { AuthService } from '../../core/auth/auth.service';
           <mat-card-content>
             @for (txn of summary()!.recentTransactions; track txn.id) {
               <div class="txn-item">
-                <span [class]="txn.direction">{{ txn.direction === 'credit' ? '+' : '−' }}{{ txn.amount / 100 | currency }}</span>
-                <span class="muted">{{ txn.type | titlecase }} · {{ txn.createdAt | date:'shortDate' }}</span>
+                <span [class]="txn.direction"
+                  >{{ txn.direction === "credit" ? "+" : "−"
+                  }}{{ txn.amount / 100 | currency }}</span
+                >
+                <span class="muted"
+                  >{{ txn.type | titlecase }} ·
+                  {{ txn.createdAt | date: "shortDate" }}</span
+                >
                 <mat-chip>{{ txn.status }}</mat-chip>
               </div>
               <mat-divider />
@@ -103,7 +119,9 @@ import { AuthService } from '../../core/auth/auth.service';
               </div>
               <div class="stat-row">
                 <span>Total deployed</span>
-                <strong>{{ managerSummary()!.totalDeployed / 100 | currency }}</strong>
+                <strong>{{
+                  managerSummary()!.totalDeployed / 100 | currency
+                }}</strong>
               </div>
             </mat-card-content>
             <mat-card-actions>
@@ -114,18 +132,55 @@ import { AuthService } from '../../core/auth/auth.service';
       </div>
     }
   `,
-  styles: [`
-    h1 { margin-bottom: 24px; }
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-    .balance { font-size: 2rem; font-weight: 700; margin: 8px 0; }
-    .fund-item, .txn-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; }
-    .fund-name { font-weight: 500; }
-    .muted { color: #757575; font-size: 0.875rem; }
-    .credit { color: #388e3c; font-weight: 600; }
-    .debit { color: #d32f2f; font-weight: 600; }
-    .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-    .manager-card { grid-column: span 2; }
-  `],
+  styles: [
+    `
+      h1 {
+        margin-bottom: 24px;
+      }
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 16px;
+      }
+      .balance {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 8px 0;
+      }
+      .fund-item,
+      .txn-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 0;
+      }
+      .fund-name {
+        font-weight: 500;
+      }
+      .muted {
+        color: #757575;
+        font-size: 0.875rem;
+      }
+      .credit {
+        color: #388e3c;
+        font-weight: 600;
+      }
+      .debit {
+        color: #d32f2f;
+        font-weight: 600;
+      }
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .manager-card {
+        grid-column: span 2;
+      }
+    `,
+  ],
 })
 export class DashboardComponent implements OnInit {
   private readonly http = inject(HttpClient);
@@ -135,9 +190,13 @@ export class DashboardComponent implements OnInit {
   readonly managerSummary = signal<any>(null);
 
   ngOnInit() {
-    this.http.get<any>('/api/dashboard/summary').subscribe((s) => this.summary.set(s));
+    this.http
+      .get<any>("/api/dashboard/summary")
+      .subscribe((s) => this.summary.set(s));
     if (this.auth.isManager()) {
-      this.http.get<any>('/api/dashboard/manager-summary').subscribe((s) => this.managerSummary.set(s));
+      this.http
+        .get<any>("/api/dashboard/manager-summary")
+        .subscribe((s) => this.managerSummary.set(s));
     }
   }
 }

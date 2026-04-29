@@ -4,10 +4,10 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
-} from '@nestjs/common';
-import { eq, and, sql } from 'drizzle-orm';
-import { DB, DrizzleDB } from '../../database/database.module';
-import { depositFunds, shares, users } from '../../database/schema';
+} from "@nestjs/common";
+import { eq, and, sql } from "drizzle-orm";
+import { DB, DrizzleDB } from "../../database/database.module";
+import { depositFunds, shares, users } from "../../database/schema";
 import {
   DepositFund,
   FundDetail,
@@ -17,7 +17,7 @@ import {
   UpdateFundDto,
   RecordSharePurchaseDto,
   ConfirmShareDto,
-} from '@fundy/shared';
+} from "@fundy/shared";
 
 @Injectable()
 export class FundsService {
@@ -35,18 +35,18 @@ export class FundsService {
       .where(eq(depositFunds.id, id))
       .limit(1);
 
-    if (!fund) throw new NotFoundException('Fund not found');
+    if (!fund) throw new NotFoundException("Fund not found");
 
     const confirmedShares = await this.db
       .select({
         userId: shares.userId,
         userName: users.name,
         userEmail: users.email,
-        quantity: sql<number>`sum(${shares.quantity})`.as('quantity'),
+        quantity: sql<number>`sum(${shares.quantity})`.as("quantity"),
       })
       .from(shares)
       .innerJoin(users, eq(shares.userId, users.id))
-      .where(and(eq(shares.fundId, id), eq(shares.status, 'confirmed')))
+      .where(and(eq(shares.fundId, id), eq(shares.status, "confirmed")))
       .groupBy(shares.userId, users.name, users.email);
 
     const totalShares = confirmedShares.reduce((sum, m) => sum + m.quantity, 0);
@@ -56,7 +56,10 @@ export class FundsService {
       userName: m.userName,
       userEmail: m.userEmail,
       shares: m.quantity,
-      sharePercent: totalShares > 0 ? Math.round((m.quantity / totalShares) * 10000) / 100 : 0,
+      sharePercent:
+        totalShares > 0
+          ? Math.round((m.quantity / totalShares) * 10000) / 100
+          : 0,
       totalValue: m.quantity * fund.sharePrice,
     }));
 
@@ -75,26 +78,32 @@ export class FundsService {
         name: dto.name,
         description: dto.description ?? null,
         sharePrice: dto.sharePrice,
-        currency: dto.currency ?? 'USD',
+        currency: dto.currency ?? "USD",
         createdBy,
       })
       .returning();
     return this.mapFund(fund);
   }
 
-  async update(id: string, dto: UpdateFundDto, actorId: string): Promise<DepositFund> {
+  async update(
+    id: string,
+    dto: UpdateFundDto,
+    actorId: string,
+  ): Promise<DepositFund> {
     const [fund] = await this.db
       .select()
       .from(depositFunds)
       .where(eq(depositFunds.id, id))
       .limit(1);
 
-    if (!fund) throw new NotFoundException('Fund not found');
-    if (fund.status === FundStatus.CLOSED) throw new BadRequestException('Fund is already closed');
+    if (!fund) throw new NotFoundException("Fund not found");
+    if (fund.status === FundStatus.CLOSED)
+      throw new BadRequestException("Fund is already closed");
 
     const updates: Partial<typeof depositFunds.$inferInsert> = {};
     if (dto.name) updates.name = dto.name;
-    if (dto.description !== undefined) updates.description = dto.description ?? null;
+    if (dto.description !== undefined)
+      updates.description = dto.description ?? null;
     if (dto.status) {
       updates.status = dto.status;
       if (dto.status === FundStatus.CLOSED) updates.closedAt = new Date();
@@ -120,9 +129,11 @@ export class FundsService {
       .where(eq(depositFunds.id, fundId))
       .limit(1);
 
-    if (!fund) throw new NotFoundException('Fund not found');
+    if (!fund) throw new NotFoundException("Fund not found");
     if (fund.status !== FundStatus.ACTIVE) {
-      throw new BadRequestException('Fund must be active to record share purchases');
+      throw new BadRequestException(
+        "Fund must be active to record share purchases",
+      );
     }
 
     await this.db.insert(shares).values({
@@ -134,16 +145,20 @@ export class FundsService {
     });
   }
 
-  async confirmShare(shareId: string, dto: ConfirmShareDto, actorId: string): Promise<void> {
+  async confirmShare(
+    shareId: string,
+    dto: ConfirmShareDto,
+    actorId: string,
+  ): Promise<void> {
     const [share] = await this.db
       .select()
       .from(shares)
       .where(eq(shares.id, shareId))
       .limit(1);
 
-    if (!share) throw new NotFoundException('Share record not found');
+    if (!share) throw new NotFoundException("Share record not found");
     if (share.status !== ShareStatus.PENDING) {
-      throw new BadRequestException('Share is not in pending state');
+      throw new BadRequestException("Share is not in pending state");
     }
 
     await this.db
@@ -157,14 +172,16 @@ export class FundsService {
       .where(eq(shares.id, shareId));
   }
 
-  async getConfirmedSharesForFund(fundId: string): Promise<Map<string, number>> {
+  async getConfirmedSharesForFund(
+    fundId: string,
+  ): Promise<Map<string, number>> {
     const rows = await this.db
       .select({
         userId: shares.userId,
-        total: sql<number>`sum(${shares.quantity})`.as('total'),
+        total: sql<number>`sum(${shares.quantity})`.as("total"),
       })
       .from(shares)
-      .where(and(eq(shares.fundId, fundId), eq(shares.status, 'confirmed')))
+      .where(and(eq(shares.fundId, fundId), eq(shares.status, "confirmed")))
       .groupBy(shares.userId);
 
     return new Map(rows.map((r) => [r.userId, r.total]));
