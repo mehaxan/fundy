@@ -3,6 +3,8 @@ import { db } from "@/db";
 import { depositFunds } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import { formatCents, formatDate } from "@/lib/utils";
+import { getSession } from "@/lib/session";
+import CreateFundDialog from "@/components/funds/create-fund-dialog";
 
 const STATUS_COLORS: Record<string, string> = {
   draft: "bg-gray-100 text-gray-700",
@@ -12,11 +14,14 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default async function FundsPage() {
   const funds = await db.select().from(depositFunds).orderBy(desc(depositFunds.createdAt));
+  const session = await getSession();
+  const isAdmin = session?.role === "admin";
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Funds</h1>
+        {isAdmin && <CreateFundDialog />}
       </div>
 
       {funds.length === 0 ? (

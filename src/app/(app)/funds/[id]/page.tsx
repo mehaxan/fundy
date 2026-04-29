@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { db } from "@/db";
-import { depositFunds, shares, users, investments } from "@/db/schema";
+import { depositFunds, shares, users, investments, fundDeposits } from "@/db/schema";
 import { formatCents, formatDate } from "@/lib/utils";
 import { getSession } from "@/lib/session";
 import FundActions from "./fund-actions";
+import DepositActions from "@/components/funds/deposit-actions";
 
 const STATUS_COLORS: Record<string, string> = {
   draft: "bg-gray-100 text-gray-700",
@@ -43,7 +44,28 @@ export default async function FundPage({ params }: { params: Promise<{ id: strin
 
   const fundInvestments = await db.select().from(investments).where(eq(investments.fundId, id));
 
-  const isAdmin = session?.role === "admin" || session?.role === "manager";
+  const isPrivileged = session?.role === "admin" || session?.role === "manager";
+  const isAdmin = isPrivileged;
+
+  const fundDepositRows = await db
+    .select({
+      id: fundDeposits.id,
+      fundId: fundDeposits.fundId,
+      userId: fundDeposits.userId,
+      userName: users.name,
+      amount: fundDeposits.amount,
+      currency: fundDeposits.currency,
+      notes: fundDeposits.notes,
+      status: fundDeposits.status,
+      reviewedBy: fundDeposits.reviewedBy,
+      reviewedAt: fundDeposits.reviewedAt,
+      reviewNotes: fundDeposits.reviewNotes,
+      createdAt: fundDeposits.createdAt,
+    })
+    .from(fundDeposits)
+    .innerJoin(users, eq(users.id, fundDeposits.userId))
+    .where(eq(fundDeposits.fundId, id))
+    .orderBy(desc(fundDeposits.createdAt));
 
   return (
     <div className="space-y-6">
@@ -71,6 +93,65 @@ export default async function FundPage({ params }: { params: Promise<{ id: strin
       </div>
 
       {isAdmin && <FundActions fundId={id} fundStatus={fund.status} allUsers={[]} />}
+
+      {/* Bank Account Info */}
+      {(fund.bankName || fund.bankAccountNumber || fund.bankInstructions) && (
+        <div className="bg-blue-50 border border-blue-100 rounded-xl p-5">
+          <h2 className="font-semibold text-blue-800 mb-3">Bank Account Details</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            {fund.bankName && (
+              <div>
+                <span className="text-xs text-blue-600 font-medium">Bank</span>
+                <p className="text-gray-800">{fund.bankName}</p>
+              </div>
+            )}
+            {fund.bankAccountName && (
+              <div>
+                <span className="text-xs text-blue-600 font-medium">Account Holder</span>
+                <p className="text-gray-800">{fund.bankAccountName}</p>
+              </div>
+            )}
+            {fund.bankAccountNumber && (
+              <div>
+                <span className="text-xs text-blue-600 font-medium">Account Number</span>
+                <p className="text-gray-800 font-mono">{fund.bankAccountNumber}</p>
+              </div>
+            )}
+            {fund.bankRoutingNumber && (
+              <div>
+                <span className="text-xs text-blue-600 font-medium">Routing Number</span>
+                <p className="text-gray-800 font-mono">{fund.bankRoutingNumber}</p>
+              </div>
+            )}
+            {fund.bankSwiftCode && (
+              <div>
+                <span className="text-xs text-blue-600 font-medium">SWIFT / BIC</span>
+                <p className="text-gray-800 font-mono">{fund.bankSwiftCode}</p>
+              </div>
+            )}
+          </div>
+          {fund.bankInstructions && (
+            <div className="mt-3">
+              <span className="text-xs text-blue-600 font-medium">Instructions</span>
+              <p className="text-gray-700 text-sm mt-1 whitespace-pre-line">{fund.bankInstructions}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Deposits */}
+      {fund.status === "active" && (
+        <DepositActions
+          fundId={id}
+          deposits={fundDepositRows.map((d) => ({
+            ...d,
+            createdAt: d.createdAt.toISOString(),
+            reviewedAt: d.reviewedAt?.toISOString() ?? null,
+          }))}
+          isPrivileged={isPrivileged}
+          currentUserId={session?.sub ?? ""}
+        />
+      )}
 
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="p-4 border-b border-gray-100">

@@ -11,6 +11,7 @@ import {
 export const userRoleEnum = pgEnum("user_role", ["admin", "manager", "member"]);
 export const fundStatusEnum = pgEnum("fund_status", ["draft", "active", "closed"]);
 export const shareStatusEnum = pgEnum("share_status", ["pending", "confirmed", "rejected"]);
+export const fundDepositStatusEnum = pgEnum("fund_deposit_status", ["pending", "approved", "rejected"]);
 export const investmentStatusEnum = pgEnum("investment_status", [
   "planned",
   "active",
@@ -52,6 +53,13 @@ export const depositFunds = pgTable("deposit_funds", {
   createdBy: uuid("created_by").notNull().references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   closedAt: timestamp("closed_at"),
+  // Bank account info
+  bankName: text("bank_name"),
+  bankAccountName: text("bank_account_name"),
+  bankAccountNumber: text("bank_account_number"),
+  bankRoutingNumber: text("bank_routing_number"),
+  bankSwiftCode: text("bank_swift_code"),
+  bankInstructions: text("bank_instructions"),
 });
 
 export const shares = pgTable("shares", {
@@ -113,5 +121,19 @@ export const refreshTokens = pgTable("refresh_tokens", {
   tokenHash: text("token_hash").notNull().unique(),
   expiresAt: timestamp("expires_at").notNull(),
   revokedAt: timestamp("revoked_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const fundDeposits = pgTable("fund_deposits", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  fundId: uuid("fund_id").notNull().references(() => depositFunds.id),
+  userId: uuid("user_id").notNull().references(() => users.id),
+  amount: integer("amount").notNull(), // in cents
+  currency: text("currency").notNull().default("USD"),
+  notes: text("notes"),
+  status: fundDepositStatusEnum("status").notNull().default("pending"),
+  reviewedBy: uuid("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

@@ -13,16 +13,27 @@ export async function GET() {
   return NextResponse.json(rows);
 }
 
-// POST /api/funds — admin/manager only
+// POST /api/funds — admin only
 export async function POST(req: NextRequest) {
   try {
-    await requireRole("admin", "manager");
+    await requireRole("admin");
   } catch {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const session = await getSession();
-  const { name, description, sharePrice, currency } = await req.json();
+  const {
+    name,
+    description,
+    sharePrice,
+    currency,
+    bankName,
+    bankAccountName,
+    bankAccountNumber,
+    bankRoutingNumber,
+    bankSwiftCode,
+    bankInstructions,
+  } = await req.json();
 
   if (!name || !sharePrice) {
     return NextResponse.json({ error: "name and sharePrice required" }, { status: 400 });
@@ -30,7 +41,19 @@ export async function POST(req: NextRequest) {
 
   const [fund] = await db
     .insert(depositFunds)
-    .values({ name, description, sharePrice, currency: currency ?? "USD", createdBy: session!.sub })
+    .values({
+      name,
+      description,
+      sharePrice,
+      currency: currency ?? "USD",
+      createdBy: session!.sub,
+      bankName,
+      bankAccountName,
+      bankAccountNumber,
+      bankRoutingNumber,
+      bankSwiftCode,
+      bankInstructions,
+    })
     .returning();
 
   return NextResponse.json(fund, { status: 201 });
