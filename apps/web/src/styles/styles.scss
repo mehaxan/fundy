@@ -1,0 +1,40 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$fundy-primary: mat.define-palette(mat.$indigo-palette);
+$fundy-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$fundy-warn: mat.define-palette(mat.$red-palette);
+
+$fundy-theme: mat.define-light-theme((
+  color: (
+    primary: $fundy-primary,
+    accent: $fundy-accent,
+    warn: $fundy-warn,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+@include mat.all-component-themes($fundy-theme);
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* Status chip color helpers */
+mat-chip.active, mat-chip.confirmed { background-color: #e8f5e9; color: #2e7d32; }
+mat-chip.pending { background-color: #fff3e0; color: #e65100; }
+mat-chip.draft { background-color: #f3e5f5; color: #6a1b9a; }
+mat-chip.closed, mat-chip.cancelled, mat-chip.rejected { background-color: #ffebee; color: #c62828; }
+mat-chip.completed { background-color: #e3f2fd; color: #0d47a1; }
+mat-chip.planned { background-color: #fce4ec; color: #880e4f; }
+mat-chip.admin { background-color: #fce4ec; color: #880e4f; }
+mat-chip.manager { background-color: #e3f2fd; color: #0d47a1; }
+mat-chip.member { background-color: #f3e5f5; color: #6a1b9a; }
