@@ -206,7 +206,7 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
           onClick={e => e.target === e.currentTarget && setShowChangePw(false)}
           style={{
             position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.7)",
-            display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+            display: "flex", alignItems: "flex-start", justifyContent: "center", overflowY: "auto", padding: "40px 20px",
           }}
         >
           <div style={{
