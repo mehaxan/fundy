@@ -27,7 +27,7 @@ function Modal({ title, onClose, children }: ModalProps) {
     }}>
       <div className="animate-fade-up" style={{
         background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 16,
-        padding: 28, width: "100%", maxWidth: 540, maxHeight: "85vh", overflowY: "auto",
+        padding: 28, width: "100%", maxWidth: 540,
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
           <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#f1f5f9" }}>{title}</h2>
