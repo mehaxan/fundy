@@ -29,13 +29,15 @@ function Modal({ title, onClose, children }: ModalProps) {
       <div className="animate-slide-right" style={{
         position: "fixed", top: 0, right: 0, height: "100vh", zIndex: 101, width: 480,
         background: "#0e0e1c", borderLeft: "1px solid #1e1e38",
-        overflowY: "auto", padding: 32,
+        display: "flex", flexDirection: "column", overflow: "hidden",
       }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "28px 32px 20px", flexShrink: 0, borderBottom: "1px solid #1e1e38" }}>
           <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#f1f5f9" }}>{title}</h2>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 20 }}>✕</button>
         </div>
-        {children}
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px 0 32px" }}>
+          {children}
+        </div>
       </div>
     </>
   );
@@ -283,7 +285,7 @@ export default function MeetingsPage() {
               </div>
             )}
             {msg && <div style={{ color: "#f87171", fontSize: 12 }}>{msg}</div>}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", position: "sticky", bottom: 0, background: "#0e0e1c", paddingTop: 16, paddingBottom: 28, marginTop: 8 }}>
               <button type="button" onClick={() => { setShowCreate(false); setEditItem(null); }} style={{ background: "#141428", border: "1px solid #1e1e38", color: "#94a3b8", borderRadius: 8, padding: "9px 16px", fontSize: 13, cursor: "pointer" }}>Cancel</button>
               <button type="submit" disabled={saving} style={{ background: "linear-gradient(135deg,#7c3aed,#4f46e5)", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 {saving ? "Saving…" : editItem ? "Save Changes" : "Schedule"}

@@ -209,12 +209,13 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
           <div className="animate-slide-right" style={{
             position: "fixed", top: 0, right: 0, height: "100vh", zIndex: 201, width: 400,
             background: "#0e0e1c", borderLeft: "1px solid #1e1e38",
-            overflowY: "auto", padding: 32,
+            display: "flex", flexDirection: "column", overflow: "hidden",
           }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "28px 32px 20px", flexShrink: 0, borderBottom: "1px solid #1e1e38" }}>
               <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#f1f5f9" }}>Change Password</h2>
               <button onClick={() => setShowChangePw(false)} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 20 }}>✕</button>
             </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px 0 32px" }}>
             <form onSubmit={changePassword} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {(["current", "next", "confirm"] as const).map((field, i) => (
                 <div key={field}>
@@ -233,13 +234,14 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
               {pwMsg && (
                 <div style={{ color: pwOk ? "#10b981" : "#f87171", fontSize: 12 }}>{pwMsg}</div>
               )}
-              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", position: "sticky", bottom: 0, background: "#0e0e1c", paddingTop: 16, paddingBottom: 28, marginTop: 8 }}>
                 <button type="button" onClick={() => setShowChangePw(false)} style={{ background: "#141428", border: "1px solid #1e1e38", color: "#94a3b8", borderRadius: 8, padding: "9px 16px", fontSize: 13, cursor: "pointer" }}>Cancel</button>
                 <button type="submit" disabled={pwSaving} style={{ background: "linear-gradient(135deg,#7c3aed,#4f46e5)", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                   {pwSaving ? "Saving…" : "Update Password"}
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </>
       )}
