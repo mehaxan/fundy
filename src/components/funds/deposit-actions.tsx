@@ -92,7 +92,7 @@ export default function DepositActions({ fundId, deposits, isPrivileged, current
     <div className="bg-white rounded-xl border border-gray-200">
       <div className="p-4 border-b border-gray-100 flex items-center justify-between">
         <h2 className="font-semibold">Deposits</h2>
-        {!isPrivileged && !showForm && (
+        {!showForm && (
           <button
             onClick={() => setShowForm(true)}
             className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700"
@@ -102,8 +102,8 @@ export default function DepositActions({ fundId, deposits, isPrivileged, current
         )}
       </div>
 
-      {/* Deposit submission form (for members) */}
-      {showForm && !isPrivileged && (
+      {/* Deposit submission form */}
+      {showForm && (
         <div className="p-4 border-b border-gray-100 bg-blue-50">
           <p className="text-sm text-gray-700 mb-3">
             After sending money to the fund's bank account, submit this form to notify the manager.

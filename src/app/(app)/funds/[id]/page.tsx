@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { db } from "@/db";
 import { depositFunds, shares, users, investments, fundDeposits } from "@/db/schema";
 import { formatCents, formatDate } from "@/lib/utils";
@@ -64,7 +64,11 @@ export default async function FundPage({ params }: { params: Promise<{ id: strin
     })
     .from(fundDeposits)
     .innerJoin(users, eq(users.id, fundDeposits.userId))
-    .where(eq(fundDeposits.fundId, id))
+    .where(
+      isPrivileged
+        ? eq(fundDeposits.fundId, id)
+        : and(eq(fundDeposits.fundId, id), eq(fundDeposits.userId, session!.sub)),
+    )
     .orderBy(desc(fundDeposits.createdAt));
 
   return (
