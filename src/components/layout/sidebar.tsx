@@ -8,7 +8,7 @@ import {
   faChartLine, faUsers, faLayerGroup, faChartPie,
   faBuilding, faShare, faWallet, faPeopleGroup,
   faVoteYea, faTriangleExclamation, faArrowTrendUp,
-  faSignOutAlt, faGear, faChevronRight,
+  faSignOutAlt, faGear, faChevronRight, faKey,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
@@ -96,6 +96,31 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [showChangePw, setShowChangePw] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
+  const [pwMsg, setPwMsg] = useState("");
+  const [pwOk, setPwOk] = useState(false);
+  const [pwSaving, setPwSaving] = useState(false);
+
+  async function changePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (pwForm.next !== pwForm.confirm) { setPwMsg("Passwords do not match"); return; }
+    if (pwForm.next.length < 8) { setPwMsg("New password must be at least 8 characters"); return; }
+    setPwSaving(true); setPwMsg("");
+    const res = await fetch("/api/auth/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword: pwForm.current, newPassword: pwForm.next }),
+    });
+    if (res.ok) {
+      setPwOk(true); setPwMsg("Password changed successfully!");
+      setTimeout(() => { setShowChangePw(false); setPwForm({ current: "", next: "", confirm: "" }); setPwMsg(""); setPwOk(false); }, 1500);
+    } else {
+      const j = await res.json();
+      setPwMsg(j.error ?? "Failed to change password");
+    }
+    setPwSaving(false);
+  }
 
   const isAdmin = userRole === "admin";
 
@@ -146,6 +171,20 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
           </div>
         </div>
         <button
+          onClick={() => { setShowChangePw(true); setPwMsg(""); setPwOk(false); setPwForm({ current: "", next: "", confirm: "" }); }}
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 8,
+            padding: "8px 10px", borderRadius: 8, border: "none",
+            background: "transparent", color: "#475569", cursor: "pointer",
+            fontSize: 13, transition: "all 0.15s",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = "#f1f5f9")}
+          onMouseLeave={e => (e.currentTarget.style.color = "#475569")}
+        >
+          <FontAwesomeIcon icon={faKey} style={{ fontSize: 12 }} />
+          Change Password
+        </button>
+        <button
           onClick={logout}
           disabled={loggingOut}
           style={{
@@ -161,6 +200,51 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
           {loggingOut ? "Signing out…" : "Sign out"}
         </button>
       </div>
+
+      {showChangePw && (
+        <div
+          onClick={e => e.target === e.currentTarget && setShowChangePw(false)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.7)",
+            display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+          }}
+        >
+          <div style={{
+            background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 16,
+            padding: 28, width: "100%", maxWidth: 400,
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#f1f5f9" }}>Change Password</h2>
+              <button onClick={() => setShowChangePw(false)} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 20 }}>✕</button>
+            </div>
+            <form onSubmit={changePassword} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {(["current", "next", "confirm"] as const).map((field, i) => (
+                <div key={field}>
+                  <label style={{ fontSize: 11, color: "#64748b", fontWeight: 700, display: "block", marginBottom: 4 }}>
+                    {["Current Password", "New Password", "Confirm New Password"][i]}
+                  </label>
+                  <input
+                    required
+                    type="password"
+                    value={pwForm[field]}
+                    onChange={e => setPwForm(f => ({ ...f, [field]: e.target.value }))}
+                    style={{ background: "#141428", border: "1px solid #1e1e38", borderRadius: 8, padding: "9px 12px", color: "#f1f5f9", fontSize: 13, width: "100%", boxSizing: "border-box" }}
+                  />
+                </div>
+              ))}
+              {pwMsg && (
+                <div style={{ color: pwOk ? "#10b981" : "#f87171", fontSize: 12 }}>{pwMsg}</div>
+              )}
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                <button type="button" onClick={() => setShowChangePw(false)} style={{ background: "#141428", border: "1px solid #1e1e38", color: "#94a3b8", borderRadius: 8, padding: "9px 16px", fontSize: 13, cursor: "pointer" }}>Cancel</button>
+                <button type="submit" disabled={pwSaving} style={{ background: "linear-gradient(135deg,#7c3aed,#4f46e5)", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                  {pwSaving ? "Saving…" : "Update Password"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
