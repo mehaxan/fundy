@@ -10,7 +10,7 @@ import {
   faVoteYea, faTriangleExclamation, faArrowTrendUp,
   faSignOutAlt, faGear, faChevronRight, faKey,
 } from "@fortawesome/free-solid-svg-icons";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const S = {
   sidebar: {
@@ -101,11 +101,6 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
   const [pwMsg, setPwMsg] = useState("");
   const [pwOk, setPwOk] = useState(false);
   const [pwSaving, setPwSaving] = useState(false);
-
-  useEffect(() => {
-    document.body.style.overflow = showChangePw ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [showChangePw]);
 
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
@@ -212,7 +207,7 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
             position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.5)",
           }} />
           <div className="animate-slide-right" style={{
-            position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 201, width: 400,
+            position: "fixed", top: 0, right: 0, height: "100vh", zIndex: 201, width: 400,
             background: "#0e0e1c", borderLeft: "1px solid #1e1e38",
             overflowY: "auto", padding: 32,
           }}>

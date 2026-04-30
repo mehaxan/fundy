@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faArrowUp, faArrowDown, faWallet, faSearch } from "@fortawesome/free-solid-svg-icons";
 import useSWR from "swr";
@@ -24,14 +24,13 @@ function Badge({ type }: { type: string }) {
 
 interface ModalProps { title: string; onClose: () => void; children: React.ReactNode; }
 function Modal({ title, onClose, children }: ModalProps) {
-  useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
   return (
     <>
       <div className="animate-fade-in" onClick={onClose} style={{
         position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.5)",
       }} />
       <div className="animate-slide-right" style={{
-        position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 101, width: 480,
+        position: "fixed", top: 0, right: 0, height: "100vh", zIndex: 101, width: 480,
         background: "#0e0e1c", borderLeft: "1px solid #1e1e38",
         overflowY: "auto", padding: 32,
       }}>
