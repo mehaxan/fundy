@@ -206,12 +206,12 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
           onClick={e => e.target === e.currentTarget && setShowChangePw(false)}
           style={{
             position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.7)",
-            display: "flex", alignItems: "flex-start", justifyContent: "center", overflowY: "auto", padding: "40px 20px",
+            overflowY: "auto", padding: "40px 20px",
           }}
         >
           <div style={{
             background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 16,
-            padding: 28, width: "100%", maxWidth: 400,
+            padding: 28, width: "100%", margin: "0 auto", maxWidth: 400,
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
               <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#f1f5f9" }}>Change Password</h2>

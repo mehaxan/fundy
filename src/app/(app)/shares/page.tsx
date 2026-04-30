@@ -22,11 +22,11 @@ function Modal({ title, onClose, children }: ModalProps) {
   return (
     <div className="animate-fade-in" onClick={e => e.target === e.currentTarget && onClose()} style={{
       position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.7)",
-      display: "flex", alignItems: "flex-start", justifyContent: "center", overflowY: "auto", padding: "40px 20px",
+      overflowY: "auto", padding: "40px 20px",
     }}>
       <div className="animate-fade-up" style={{
         background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 16,
-        padding: 28, width: "100%", maxWidth: 480,
+        padding: 28, width: "100%", margin: "0 auto", maxWidth: 480,
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
           <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#f1f5f9" }}>{title}</h2>
