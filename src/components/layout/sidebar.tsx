@@ -106,7 +106,7 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
     router.refresh();
   }
 
-  const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const initials = (userName || "?").split(" ").map(n => n?.[0] ?? "").join("").toUpperCase().slice(0, 2) || "?";
 
   return (
     <div style={S.sidebar}>
