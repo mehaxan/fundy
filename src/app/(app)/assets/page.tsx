@@ -1,6 +1,7 @@
 
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faBuilding, faPencil, faTrash, faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import useSWR from "swr";
@@ -20,13 +21,17 @@ function Badge({ status }: { status: string }) {
 
 interface ModalProps { title: string; onClose: () => void; children: React.ReactNode; }
 function Modal({ title, onClose, children }: ModalProps) {
-  return (
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+  return createPortal(
     <>
       <div className="animate-fade-in" onClick={onClose} style={{
-        position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.5)",
+        position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.5)",
       }} />
       <div className="animate-slide-right" style={{
-        position: "fixed", top: 0, right: 0, height: "100vh", zIndex: 101, width: 480,
+        position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 1001, width: 480,
         background: "#0e0e1c", borderLeft: "1px solid #1e1e38",
         display: "flex", flexDirection: "column", overflow: "hidden",
       }}>
@@ -34,11 +39,12 @@ function Modal({ title, onClose, children }: ModalProps) {
           <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#f1f5f9" }}>{title}</h2>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 20 }}>✕</button>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px 0 32px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px 0 32px", display: "flex", flexDirection: "column" }}>
           {children}
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
 
@@ -220,7 +226,7 @@ export default function AssetsPage() {
       {/* Modal */}
       {(showCreate || editItem) && (
         <Modal title={editItem ? "Edit Asset" : "Add Asset"} onClose={() => { setShowCreate(false); setEditItem(null); }}>
-          <form onSubmit={saveAsset} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <form onSubmit={saveAsset} style={{ display: "flex", flexDirection: "column", gap: 14, flex: 1 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div style={{ gridColumn: "span 2" }}><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700, display: "block", marginBottom: 4 }}>Asset Name *</label><input required value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} style={inp} /></div>
               <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700, display: "block", marginBottom: 4 }}>Category</label>
@@ -240,7 +246,7 @@ export default function AssetsPage() {
               <div style={{ gridColumn: "span 2" }}><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700, display: "block", marginBottom: 4 }}>Description</label><textarea value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} style={{ ...inp, resize: "vertical", minHeight: 60 }} /></div>
             </div>
             {msg && <div style={{ color: "#f87171", fontSize: 12 }}>{msg}</div>}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", position: "sticky", bottom: 0, background: "#0e0e1c", paddingTop: 16, paddingBottom: 28, marginTop: 8 }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: "auto", paddingTop: 16, paddingBottom: 28 }}>
               <button type="button" onClick={() => { setShowCreate(false); setEditItem(null); }} style={{ background: "#141428", border: "1px solid #1e1e38", color: "#94a3b8", borderRadius: 8, padding: "9px 16px", fontSize: 13, cursor: "pointer" }}>Cancel</button>
               <button type="submit" disabled={saving} style={{ background: "linear-gradient(135deg,#7c3aed,#4f46e5)", color: "#fff", border: "none", borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 {saving ? "Saving…" : editItem ? "Save Changes" : "Add Asset"}
