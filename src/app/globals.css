@@ -56,6 +56,11 @@ html, body {
 
 .animate-fade-up { animation: fadeUp 0.25s ease-out both; }
 .animate-fade-in { animation: fadeIn 0.2s ease-out both; }
+@keyframes slideRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.animate-slide-right { animation: slideRight 0.25s ease-out both; }
 .animate-spin    { animation: spin 0.8s linear infinite; }
 
 /* Card hover glow */

@@ -207,16 +207,14 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
       </div>
 
       {showChangePw && (
-        <div
-          onClick={e => e.target === e.currentTarget && setShowChangePw(false)}
-          style={{
-            position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.7)",
-            overflowY: "auto", padding: "40px 20px",
-          }}
-        >
-          <div style={{
-            background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 16,
-            padding: 28, width: "100%", margin: "0 auto", maxWidth: 400,
+        <>
+          <div className="animate-fade-in" onClick={() => setShowChangePw(false)} style={{
+            position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.5)",
+          }} />
+          <div className="animate-slide-right" style={{
+            position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 201, width: 400,
+            background: "#0e0e1c", borderLeft: "1px solid #1e1e38",
+            overflowY: "auto", padding: 32,
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
               <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#f1f5f9" }}>Change Password</h2>
@@ -248,7 +246,7 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
               </div>
             </form>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
