@@ -1,84 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, and, sum } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { depositFunds, shares, users } from "@/db/schema";
-import { getSession, requireRole } from "@/lib/session";
+import { funds, shares, users } from "@/db/schema";
+import { requireSession, requireAdmin } from "@/lib/session";
 
-type Params = { params: Promise<{ id: string }> };
-
-// GET /api/funds/[id]
-export async function GET(_req: NextRequest, { params }: Params) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { id } = await params;
-  const [fund] = await db.select().from(depositFunds).where(eq(depositFunds.id, id));
-  if (!fund) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-  const fundShares = await db
-    .select({
-      userId: shares.userId,
-      userName: users.name,
-      userEmail: users.email,
-      quantity: shares.quantity,
-      status: shares.status,
-      unitPrice: shares.unitPrice,
-      purchasedAt: shares.purchasedAt,
-      shareId: shares.id,
-      notes: shares.notes,
-    })
-    .from(shares)
-    .innerJoin(users, eq(users.id, shares.userId))
-    .where(eq(shares.fundId, id))
-    .orderBy(shares.purchasedAt);
-
-  const confirmedShares = fundShares.filter((s) => s.status === "confirmed");
-  const totalShares = confirmedShares.reduce((acc, s) => acc + s.quantity, 0);
-  const totalValue = totalShares * fund.sharePrice;
-
-  const members = Object.values(
-    confirmedShares.reduce(
-      (acc, s) => {
-        if (!acc[s.userId]) {
-          acc[s.userId] = { userId: s.userId, userName: s.userName, userEmail: s.userEmail, shares: 0, totalValue: 0 };
-        }
-        acc[s.userId].shares += s.quantity;
-        acc[s.userId].totalValue = acc[s.userId].shares * fund.sharePrice;
-        return acc;
-      },
-      {} as Record<string, { userId: string; userName: string; userEmail: string; shares: number; totalValue: number }>,
-    ),
-  ).map((m) => ({
-    ...m,
-    sharePercent: totalShares > 0 ? Math.round((m.shares / totalShares) * 10000) / 100 : 0,
-  }));
-
-  return NextResponse.json({ ...fund, totalShares, totalValue, members, allShares: fundShares });
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    await requireSession();
+    const { id } = await params;
+    const [fund] = await db.select().from(funds).where(eq(funds.id, id));
+    if (!fund) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const shareRows = await db.select({
+      id: shares.id, quantity: shares.quantity, unitPrice: shares.unitPrice,
+      totalAmount: shares.totalAmount, status: shares.status,
+      requestedAt: shares.requestedAt, notes: shares.notes, userId: shares.userId,
+      userName: users.name, userEmail: users.email,
+    }).from(shares).leftJoin(users, eq(shares.userId, users.id)).where(eq(shares.fundId, id));
+    return NextResponse.json({ ...fund, shares: shareRows });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Server error";
+    return NextResponse.json({ error: msg }, { status: msg === "Unauthorized" ? 401 : 500 });
+  }
 }
 
-// PATCH /api/funds/[id]
-export async function PATCH(req: NextRequest, { params }: Params) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireRole("admin", "manager");
-  } catch {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    await requireAdmin();
+    const { id } = await params;
+    const data = await req.json();
+    const allowed = ["name", "description", "sharePrice", "status"];
+    const update: Record<string, unknown> = {};
+    for (const k of allowed) if (k in data) update[k] = data[k];
+    if (data.status === "closed") update.closedAt = new Date();
+    const [fund] = await db.update(funds).set(update).where(eq(funds.id, id)).returning();
+    return NextResponse.json(fund);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Server error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
-
-  const { id } = await params;
-  const body = await req.json();
-  const allowed = ["name", "description", "status"] as const;
-  const update: Record<string, unknown> = {};
-  for (const key of allowed) {
-    if (key in body) update[key] = body[key];
-  }
-  if (body.status === "closed") update.closedAt = new Date();
-
-  const [updated] = await db
-    .update(depositFunds)
-    .set(update)
-    .where(eq(depositFunds.id, id))
-    .returning();
-
-  if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(updated);
 }

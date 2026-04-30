@@ -2,13 +2,14 @@ import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 
 const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "dev-secret-change-in-production",
+  process.env.JWT_SECRET ?? "fundy-dev-secret-change-in-production",
 );
 
 export interface SessionPayload {
   sub: string;
   email: string;
-  role: "admin" | "manager" | "member";
+  name: string;
+  role: "admin" | "member";
 }
 
 export async function signToken(payload: SessionPayload): Promise<string> {

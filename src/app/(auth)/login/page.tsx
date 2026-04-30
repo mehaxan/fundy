@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelope, faLock, faChartLine, faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,39 +31,107 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full max-w-sm">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Fundy</h1>
-      <p className="text-sm text-gray-500 mb-6">Sign in to your account</p>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+    <div style={{ width: "100%", maxWidth: 420, padding: "0 16px" }}>
+      {/* Logo */}
+      <div style={{ textAlign: "center", marginBottom: 40 }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          width: 56, height: 56, borderRadius: 16,
+          background: "linear-gradient(135deg, #7c3aed, #4f46e5)",
+          marginBottom: 16, boxShadow: "0 0 30px rgba(124,58,237,0.4)",
+        }}>
+          <FontAwesomeIcon icon={faChartLine} style={{ fontSize: 24, color: "#fff" }} />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input
-            name="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 rounded-lg text-sm font-medium transition-colors"
-        >
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
+        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: "#f1f5f9", letterSpacing: -0.5 }}>Fundy</h1>
+        <p style={{ margin: "6px 0 0", fontSize: 14, color: "#64748b" }}>Fund Management Platform</p>
+      </div>
+
+      {/* Card */}
+      <div style={{
+        background: "#0e0e1c", border: "1px solid #1e1e38",
+        borderRadius: 20, padding: 32,
+        boxShadow: "0 0 60px rgba(0,0,0,0.5)",
+      }}>
+        <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 600, color: "#f1f5f9" }}>Welcome back</h2>
+        <p style={{ margin: "0 0 28px", fontSize: 13, color: "#64748b" }}>Sign in to your account to continue</p>
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          <div>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
+              Email
+            </label>
+            <div style={{ position: "relative" }}>
+              <FontAwesomeIcon icon={faEnvelope} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#475569", fontSize: 13 }} />
+              <input
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="you@example.com"
+                style={{
+                  width: "100%", boxSizing: "border-box", background: "#141428",
+                  border: "1px solid #1e1e38", borderRadius: 10, padding: "11px 14px 11px 38px",
+                  color: "#f1f5f9", fontSize: 14, outline: "none", transition: "border-color 0.2s",
+                }}
+                onFocus={e => (e.target.style.borderColor = "#7c3aed")}
+                onBlur={e => (e.target.style.borderColor = "#1e1e38")}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
+              Password
+            </label>
+            <div style={{ position: "relative" }}>
+              <FontAwesomeIcon icon={faLock} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#475569", fontSize: 13 }} />
+              <input
+                name="password"
+                type="password"
+                required
+                autoComplete="current-password"
+                placeholder="••••••••"
+                style={{
+                  width: "100%", boxSizing: "border-box", background: "#141428",
+                  border: "1px solid #1e1e38", borderRadius: 10, padding: "11px 14px 11px 38px",
+                  color: "#f1f5f9", fontSize: 14, outline: "none", transition: "border-color 0.2s",
+                }}
+                onFocus={e => (e.target.style.borderColor = "#7c3aed")}
+                onBlur={e => (e.target.style.borderColor = "#1e1e38")}
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div style={{
+              background: "#450a0a", border: "1px solid #ef444440",
+              borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#f87171",
+            }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              background: loading ? "#2e1065" : "linear-gradient(135deg, #7c3aed, #4f46e5)",
+              color: "#fff", border: "none", borderRadius: 10, padding: "13px 0",
+              fontSize: 14, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.2s", boxShadow: loading ? "none" : "0 4px 20px rgba(124,58,237,0.35)",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              marginTop: 4,
+            }}
+          >
+            {loading && <FontAwesomeIcon icon={faSpinner} className="animate-spin" />}
+            {loading ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+      </div>
+
+      <p style={{ textAlign: "center", fontSize: 12, color: "#334155", marginTop: 24 }}>
+        Fundy © 2026 — All amounts in BDT
+      </p>
     </div>
   );
 }

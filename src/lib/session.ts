@@ -14,10 +14,8 @@ export async function requireSession(): Promise<SessionPayload> {
   return session;
 }
 
-export async function requireRole(
-  ...roles: SessionPayload["role"][]
-): Promise<SessionPayload> {
+export async function requireAdmin(): Promise<SessionPayload> {
   const session = await requireSession();
-  if (!roles.includes(session.role)) throw new Error("Forbidden");
+  if (session.role !== "admin") throw new Error("Forbidden");
   return session;
 }

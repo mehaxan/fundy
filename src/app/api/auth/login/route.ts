@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email and password required" }, { status: 400 });
   }
 
-  const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
+  const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase().trim()));
 
   if (!user || !user.isActive) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
@@ -22,9 +22,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
-  const token = await signToken({ sub: user.id, email: user.email, role: user.role });
+  const token = await signToken({ sub: user.id, email: user.email, name: user.name, role: user.role });
 
-  const res = NextResponse.json({ ok: true });
+  const res = NextResponse.json({ ok: true, role: user.role, name: user.name });
   res.cookies.set("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -34,3 +34,4 @@ export async function POST(req: NextRequest) {
   });
   return res;
 }
+

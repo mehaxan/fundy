@@ -1,61 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, count } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users, wallets } from "@/db/schema";
-import { requireRole } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { hashPassword } from "@/lib/auth";
 
-// GET /api/users — admin/manager only
 export async function GET() {
   try {
-    await requireRole("admin", "manager");
-  } catch {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  const rows = await db
-    .select({
-      id: users.id,
-      email: users.email,
-      name: users.name,
-      role: users.role,
-      isActive: users.isActive,
-      createdAt: users.createdAt,
+    await requireAdmin();
+    const rows = await db.select({
+      id: users.id, name: users.name, email: users.email,
+      phone: users.phone, role: users.role, isActive: users.isActive,
+      address: users.address, joinedAt: users.joinedAt, createdAt: users.createdAt,
       walletBalance: wallets.balance,
-    })
-    .from(users)
-    .leftJoin(wallets, eq(wallets.userId, users.id))
-    .orderBy(users.createdAt);
-
-  return NextResponse.json(rows);
+    }).from(users).leftJoin(wallets, eq(wallets.userId, users.id)).orderBy(desc(users.createdAt));
+    return NextResponse.json(rows);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Server error";
+    return NextResponse.json({ error: msg }, { status: msg === "Unauthorized" ? 401 : 403 });
+  }
 }
 
-// POST /api/users — admin only (invite/create user)
 export async function POST(req: NextRequest) {
   try {
-    await requireRole("admin");
-  } catch {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    await requireAdmin();
+    const { name, email, phone, password, role, address } = await req.json();
+    if (!name || !email || !password) return NextResponse.json({ error: "name, email, password required" }, { status: 400 });
+    const passwordHash = await hashPassword(password);
+    const [user] = await db.insert(users).values({
+      name, email: email.toLowerCase().trim(), phone, passwordHash,
+      role: role ?? "member", address,
+    }).returning();
+    await db.insert(wallets).values({ userId: user.id });
+    return NextResponse.json(user, { status: 201 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Server error";
+    if (msg.includes("unique")) return NextResponse.json({ error: "Email already exists" }, { status: 409 });
+    return NextResponse.json({ error: msg }, { status: msg === "Unauthorized" ? 401 : 403 });
   }
-
-  const { email, name, role, password } = await req.json();
-  if (!email || !name || !password) {
-    return NextResponse.json({ error: "email, name, password required" }, { status: 400 });
-  }
-
-  const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, email.toLowerCase()));
-  if (existing.length) {
-    return NextResponse.json({ error: "Email already in use" }, { status: 409 });
-  }
-
-  const passwordHash = await hashPassword(password);
-  const [user] = await db
-    .insert(users)
-    .values({ email: email.toLowerCase(), name, role: role ?? "member", passwordHash })
-    .returning({ id: users.id, email: users.email, name: users.name, role: users.role });
-
-  // Create wallet for user
-  await db.insert(wallets).values({ userId: user.id });
-
-  return NextResponse.json(user, { status: 201 });
 }
