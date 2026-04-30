@@ -31,7 +31,7 @@ function Modal({ title, onClose, children }: ModalProps) {
         position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.5)",
       }} />
       <div className="animate-slide-right" style={{
-        position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 1001, width: 480,
+        position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 1001, width: "min(480px, 100vw)",
         background: "#0e0e1c", borderLeft: "1px solid #1e1e38",
         display: "flex", flexDirection: "column", overflow: "hidden",
       }}>
@@ -110,7 +110,7 @@ export default function FinesPage() {
       </div>
 
       {/* KPI */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 24 }}>
+      <div className="stats-grid">
         {[
           { label: "Total Fines", value: String(fines.length), color: "#7c3aed" },
           { label: "Pending", value: `${countPending} (${bdt(totalPending)})`, color: "#f59e0b" },

@@ -8,7 +8,7 @@ import {
   faChartLine, faUsers, faLayerGroup, faChartPie,
   faBuilding, faShare, faWallet, faPeopleGroup,
   faVoteYea, faTriangleExclamation, faArrowTrendUp,
-  faSignOutAlt, faGear, faChevronRight, faKey,
+  faSignOutAlt, faGear, faChevronRight, faKey, faBars,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -102,6 +102,7 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
   const [pwMsg, setPwMsg] = useState("");
   const [pwOk, setPwOk] = useState(false);
   const [pwSaving, setPwSaving] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
@@ -135,12 +136,40 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
   const initials = (userName || "?").split(" ").map(n => n?.[0] ?? "").join("").toUpperCase().slice(0, 2) || "?";
 
   return (
-    <div style={S.sidebar}>
+    <>
+      {/* Mobile hamburger */}
+      <button
+        className="mobile-menu-btn"
+        onClick={() => setMobileOpen(true)}
+        aria-label="Open menu"
+      >
+        <FontAwesomeIcon icon={faBars} />
+      </button>
+
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 49,
+            background: "rgba(0,0,0,0.55)",
+          }}
+        />
+      )}
+
+      <div className={`app-sidebar${mobileOpen ? " sidebar-open" : ""}`} style={S.sidebar}>
       <div style={S.logo}>
         <div style={S.logoIcon}>
           <FontAwesomeIcon icon={faChartLine} style={{ fontSize: 16, color: "#fff" }} />
         </div>
         <span style={S.logoText}>Fundy</span>
+        {mobileOpen && (
+          <button
+            onClick={() => setMobileOpen(false)}
+            aria-label="Close menu"
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 18, padding: 4, lineHeight: 1 }}
+          >✕</button>
+        )}
       </div>
 
       <nav style={S.nav}>
@@ -208,7 +237,7 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
             position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.5)",
           }} />
           <div className="animate-slide-right" style={{
-            position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 1001, width: 400,
+            position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 1001, width: "min(400px, 100vw)",
             background: "#0e0e1c", borderLeft: "1px solid #1e1e38",
             display: "flex", flexDirection: "column", overflow: "hidden",
           }}>
@@ -248,5 +277,6 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
         document.body
       )}
     </div>
+    </>
   );
 }

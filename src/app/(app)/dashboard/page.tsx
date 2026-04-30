@@ -128,7 +128,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts Row 1 */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20, marginBottom: 20 }}>
+      <div className="chart-grid" style={{ marginBottom: 20 }}>
         {/* Growth Chart */}
         <div style={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 14, padding: "22px 22px 14px" }}>
           <h3 style={{ margin: "0 0 20px", fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>Fund Growth Over Time</h3>
@@ -191,7 +191,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Bottom Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20 }}>
+      <div className="chart-grid">
         {/* Recent Transactions */}
         <div style={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 14, padding: "22px 22px 8px" }}>
           <h3 style={{ margin: "0 0 16px", fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>Recent Transactions</h3>

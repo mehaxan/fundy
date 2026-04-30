@@ -9,7 +9,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#08080f" }}>
       <Sidebar userName={session.name} userRole={session.role} userEmail={session.email} />
-      <main style={{ flex: 1, marginLeft: 240, padding: "28px 32px", minWidth: 0 }}>
+      <main className="app-main" style={{ flex: 1, marginLeft: 240, padding: "28px 32px", minWidth: 0 }}>
         {children}
       </main>
     </div>
