@@ -144,7 +144,7 @@ export default function FinesPage() {
                 {isAdmin && <td style={{ padding: "12px 16px", borderBottom: "1px solid #141428", fontSize: 13, fontWeight: 600, color: "#f1f5f9" }}>{String(f.userName ?? "—")}</td>}
                 <td style={{ padding: "12px 16px", borderBottom: "1px solid #141428", fontSize: 13, color: "#94a3b8", maxWidth: 250 }}>
                   <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{String(f.reason)}</div>
-                  {f.notes && <div style={{ fontSize: 11, color: "#475569" }}>{String(f.notes).slice(0, 60)}</div>}
+                  {!!f.notes && <div style={{ fontSize: 11, color: "#475569" }}>{String(f.notes).slice(0, 60)}</div>}
                 </td>
                 <td style={{ padding: "12px 16px", borderBottom: "1px solid #141428", fontSize: 14, fontWeight: 700, color: "#f87171" }}>{bdt(Number(f.amount))}</td>
                 <td style={{ padding: "12px 16px", borderBottom: "1px solid #141428", fontSize: 12, color: "#64748b" }}>{f.dueDate ? format(new Date(String(f.dueDate)), "dd MMM yyyy") : "—"}</td>

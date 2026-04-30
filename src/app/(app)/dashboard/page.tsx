@@ -155,7 +155,7 @@ export default function DashboardPage() {
                 <Tooltip
                   contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }}
                   labelStyle={{ color: "#94a3b8" }}
-                  formatter={(v: number) => [bdt(v)]}
+                  formatter={(v: unknown) => [bdt(Number(v))]}
                 />
                 <Area type="monotone" dataKey="Net Worth" stroke="#7c3aed" fill="url(#gNW)" strokeWidth={2} dot={false} />
                 <Area type="monotone" dataKey="Invested" stroke="#10b981" fill="url(#gInv)" strokeWidth={2} dot={false} />
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                 </Pie>
                 <Tooltip
                   contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }}
-                  formatter={(v: number) => [bdt(v)]}
+                  formatter={(v: unknown) => [bdt(Number(v))]}
                 />
                 <Legend wrapperStyle={{ fontSize: 11, color: "#64748b" }} />
               </PieChart>

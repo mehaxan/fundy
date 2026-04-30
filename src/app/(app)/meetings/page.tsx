@@ -153,14 +153,14 @@ export default function MeetingsPage() {
                   <Badge status={String(m.status)} />
                   <Badge status={String(m.type)} />
                 </div>
-                {m.description && (
+                {!!m.description && (
                   <p style={{ margin: "0 0 8px", fontSize: 12, color: "#64748b", maxWidth: 600 }}>{String(m.description).slice(0, 120)}</p>
                 )}
                 <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 12, color: "#475569" }}>
                   <span><FontAwesomeIcon icon={faCalendarDays} style={{ marginRight: 5 }} />
                     {m.scheduledAt ? format(new Date(String(m.scheduledAt)), "dd MMM yyyy, hh:mm a") : "—"}
                   </span>
-                  {m.location && <span>📍 {String(m.location)}</span>}
+                  {!!m.location && <span>📍 {String(m.location)}</span>}
                   <span><FontAwesomeIcon icon={faUsers} style={{ marginRight: 5 }} />{Number(m.attendeeCount ?? 0)} attendees</span>
                 </div>
               </div>
@@ -188,13 +188,13 @@ export default function MeetingsPage() {
             <Badge status={String(detailItem.status)} />
             <Badge status={String(detailItem.type)} />
           </div>
-          {detailItem.description && <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 16px" }}>{String(detailItem.description)}</p>}
+          {!!detailItem.description && <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 16px" }}>{String(detailItem.description)}</p>}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
             <div style={{ background: "#141428", borderRadius: 8, padding: "10px 12px" }}>
               <div style={{ fontSize: 10, color: "#475569", fontWeight: 700, textTransform: "uppercase", marginBottom: 3 }}>Date & Time</div>
               <div style={{ fontSize: 13, color: "#f1f5f9" }}>{detailItem.scheduledAt ? format(new Date(String(detailItem.scheduledAt)), "dd MMM yyyy, hh:mm a") : "—"}</div>
             </div>
-            {detailItem.location && (
+            {!!detailItem.location && (
               <div style={{ background: "#141428", borderRadius: 8, padding: "10px 12px" }}>
                 <div style={{ fontSize: 10, color: "#475569", fontWeight: 700, textTransform: "uppercase", marginBottom: 3 }}>Location</div>
                 <div style={{ fontSize: 13, color: "#f1f5f9" }}>{String(detailItem.location)}</div>

@@ -148,7 +148,7 @@ export default function InvestmentsPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="#1e1e38" />
               <XAxis dataKey="name" tick={{ fill: "#475569", fontSize: 11 }} />
               <YAxis tick={{ fill: "#475569", fontSize: 11 }} tickFormatter={v => `৳${(v / 1000).toFixed(0)}K`} />
-              <Tooltip contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }} formatter={(v: number) => [bdt(v)]} />
+              <Tooltip contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }} formatter={(v: unknown) => [bdt(Number(v))]} />
               <Legend wrapperStyle={{ fontSize: 11, color: "#64748b" }} />
               <Bar dataKey="Invested" fill="#7c3aed" radius={[4, 4, 0, 0]} />
               <Bar dataKey="Expected" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -188,7 +188,7 @@ export default function InvestmentsPage() {
                 <tr key={String(inv.id)} onMouseEnter={e => (e.currentTarget.style.background = "#0e0e1c80")} onMouseLeave={e => (e.currentTarget.style.background = "")}>
                   <td style={{ padding: "12px 16px", borderBottom: "1px solid #141428" }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9" }}>{String(inv.name)}</div>
-                    {inv.description && <div style={{ fontSize: 11, color: "#64748b" }}>{String(inv.description).slice(0, 50)}</div>}
+                    {!!inv.description && <div style={{ fontSize: 11, color: "#64748b" }}>{String(inv.description).slice(0, 50)}</div>}
                   </td>
                   <td style={{ padding: "12px 16px", borderBottom: "1px solid #141428", fontSize: 13, fontWeight: 600, color: "#a78bfa" }}>{bdt(Number(inv.investedAmount))}</td>
                   <td style={{ padding: "12px 16px", borderBottom: "1px solid #141428", fontSize: 13, color: "#3b82f6" }}>{inv.expectedReturn ? bdt(Number(inv.expectedReturn)) : "—"}</td>

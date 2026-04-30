@@ -146,11 +146,11 @@ export default function VotesPage() {
                     <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#f1f5f9" }}>{String(v.title)}</h3>
                     <Badge status={String(v.status)} />
                   </div>
-                  {v.description && <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>{String(v.description).slice(0, 100)}</p>}
+                  {!!v.description && <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>{String(v.description).slice(0, 100)}</p>}
                 </div>
                 <div style={{ textAlign: "right", fontSize: 12, color: "#64748b", whiteSpace: "nowrap", marginLeft: 12 }}>
                   {Number(v.responseCount ?? 0)} responses
-                  {v.closesAt && <div>{isPast(new Date(String(v.closesAt))) ? "Closed" : `Closes ${format(new Date(String(v.closesAt)), "dd MMM")}`}</div>}
+                  {!!v.closesAt && <div>{isPast(new Date(String(v.closesAt))) ? "Closed" : `Closes ${format(new Date(String(v.closesAt)), "dd MMM")}`}</div>}
                 </div>
               </div>
               {total > 0 && (
@@ -184,9 +184,9 @@ export default function VotesPage() {
         <Modal title={String(detailItem.title)} onClose={() => setDetailItem(null)}>
           <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
             <Badge status={String(detailItem.status)} />
-            {detailItem.closesAt && <span style={{ fontSize: 11, color: "#64748b" }}>Closes: {format(new Date(String(detailItem.closesAt)), "dd MMM yyyy, hh:mm a")}</span>}
+            {!!detailItem.closesAt && <span style={{ fontSize: 11, color: "#64748b" }}>Closes: {format(new Date(String(detailItem.closesAt)), "dd MMM yyyy, hh:mm a")}</span>}
           </div>
-          {detailItem.description && <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 20px" }}>{String(detailItem.description)}</p>}
+          {!!detailItem.description && <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 20px" }}>{String(detailItem.description)}</p>}
 
           {/* Results Chart */}
           {(detailItem.responses as unknown[])?.length > 0 && (() => {
@@ -249,7 +249,7 @@ export default function VotesPage() {
                   <div key={String(r.userId)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#141428", borderRadius: 8, padding: "8px 12px" }}>
                     <span style={{ fontSize: 13, color: "#cbd5e1" }}>{String(r.userName ?? r.userId)}</span>
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                      {r.reason && <span style={{ fontSize: 11, color: "#475569" }}>{String(r.reason).slice(0, 40)}</span>}
+                      {!!r.reason && <span style={{ fontSize: 11, color: "#475569" }}>{String(r.reason).slice(0, 40)}</span>}
                       <Badge status={String(r.response)} />
                     </div>
                   </div>

@@ -175,7 +175,7 @@ export default function AssetsPage() {
                 </div>
               </div>
 
-              {asset.currentValue && (
+              {!!asset.currentValue && (
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
                   <FontAwesomeIcon icon={gain >= 0 ? faArrowUp : faArrowDown} style={{ fontSize: 11, color: gain >= 0 ? "#10b981" : "#ef4444" }} />
                   <span style={{ fontSize: 12, fontWeight: 600, color: gain >= 0 ? "#10b981" : "#ef4444" }}>

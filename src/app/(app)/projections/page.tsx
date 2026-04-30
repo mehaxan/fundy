@@ -181,7 +181,7 @@ export default function ProjectionsPage() {
                   <YAxis tick={{ fill: "#475569", fontSize: 11 }} tickFormatter={v => bdtC(v)} />
                   <Tooltip
                     contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }}
-                    formatter={(v: number, name: string) => [bdt(v), name]}
+                    formatter={(v: unknown, name: unknown) => [bdt(Number(v)), String(name)]}
                   />
                   <Area type="monotone" dataKey="Net Worth" stroke="#7c3aed" fill="url(#nwGrad)" strokeWidth={2} dot={false} connectNulls />
                   <Area type="monotone" dataKey="Projected Net Worth" stroke="#06b6d4" fill="url(#projGrad)" strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls />
@@ -200,7 +200,7 @@ export default function ProjectionsPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e1e38" />
                   <XAxis dataKey="name" tick={{ fill: "#475569", fontSize: 10 }} angle={-30} textAnchor="end" height={50} />
                   <YAxis tick={{ fill: "#475569", fontSize: 11 }} tickFormatter={v => bdtC(v)} />
-                  <Tooltip contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }} formatter={(v: number) => [bdt(v)]} />
+                  <Tooltip contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }} formatter={(v: unknown) => [bdt(Number(v))]} />
                   <Legend wrapperStyle={{ fontSize: 11, color: "#64748b" }} />
                   <Bar dataKey="Invested" fill="#7c3aed" stackId="a" />
                   <Bar dataKey="Returns" fill="#10b981" stackId="a" />
@@ -220,7 +220,7 @@ export default function ProjectionsPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e1e38" />
                   <XAxis dataKey="name" tick={{ fill: "#475569", fontSize: 10 }} angle={-30} textAnchor="end" height={50} />
                   <YAxis tick={{ fill: "#475569", fontSize: 11 }} tickFormatter={v => `${v}%`} />
-                  <Tooltip contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }} formatter={(v: number) => [`${v}%`, "ROI"]} />
+                  <Tooltip contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }} formatter={(v: unknown) => [`${Number(v)}%`, "ROI"]} />
                   <Line type="monotone" dataKey="ROI %" stroke="#10b981" strokeWidth={2.5} dot={{ fill: "#10b981", r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>

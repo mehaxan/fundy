@@ -150,7 +150,7 @@ export default function WalletPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="#1e1e38" />
               <XAxis dataKey="date" tick={{ fill: "#475569", fontSize: 11 }} />
               <YAxis tick={{ fill: "#475569", fontSize: 11 }} tickFormatter={v => `৳${(v / 1000).toFixed(0)}K`} />
-              <Tooltip contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }} formatter={(v: number) => [bdt(v), "Balance"]} />
+              <Tooltip contentStyle={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 8 }} formatter={(v: unknown) => [bdt(Number(v)), "Balance"]} />
               <Area type="monotone" dataKey="balance" stroke="#7c3aed" fill="url(#balGrad)" strokeWidth={2} dot={false} />
             </AreaChart>
           </ResponsiveContainer>

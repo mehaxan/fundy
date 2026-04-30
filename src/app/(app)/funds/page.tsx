@@ -113,7 +113,7 @@ export default function FundsPage() {
               </button>
             </div>
 
-            {f.description && <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 14px" }}>{String(f.description)}</p>}
+            {!!f.description && <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 14px" }}>{String(f.description)}</p>}
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
               <div style={{ background: "#141428", borderRadius: 8, padding: "10px 12px" }}>
