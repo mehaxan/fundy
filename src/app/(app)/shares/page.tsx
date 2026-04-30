@@ -1,6 +1,6 @@
 
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShare, faPlus, faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 import useSWR from "swr";
@@ -19,6 +19,7 @@ function Badge({ status }: { status: string }) {
 
 interface ModalProps { title: string; onClose: () => void; children: React.ReactNode; }
 function Modal({ title, onClose, children }: ModalProps) {
+  useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
   return (
     <div className="animate-fade-in" onClick={e => e.target === e.currentTarget && onClose()} style={{
       position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.7)",

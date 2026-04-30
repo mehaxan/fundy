@@ -10,7 +10,7 @@ import {
   faVoteYea, faTriangleExclamation, faArrowTrendUp,
   faSignOutAlt, faGear, faChevronRight, faKey,
 } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const S = {
   sidebar: {
@@ -101,6 +101,11 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
   const [pwMsg, setPwMsg] = useState("");
   const [pwOk, setPwOk] = useState(false);
   const [pwSaving, setPwSaving] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = showChangePw ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showChangePw]);
 
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
