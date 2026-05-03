@@ -8,6 +8,13 @@
       "when": 1777524541464,
       "tag": "0000_fantastic_scream",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1746294668944,
+      "tag": "0001_add_bank_fields_to_funds",
+      "breakpoints": true
     }
   ]
 }

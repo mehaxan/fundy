@@ -28,7 +28,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     await requireAdmin();
     const { id } = await params;
     const data = await req.json();
-    const allowed = ["name", "description", "sharePrice", "status"];
+    const allowed = ["name", "description", "sharePrice", "status", "bankName", "bankAccountName", "bankAccountNumber", "bankBranch", "bankInstructions"];
     const update: Record<string, unknown> = {};
     for (const k of allowed) if (k in data) update[k] = data[k];
     if (data.status === "closed") update.closedAt = new Date();

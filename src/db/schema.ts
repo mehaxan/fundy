@@ -78,6 +78,11 @@ export const funds = pgTable("funds", {
   createdBy: uuid("created_by").notNull().references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   closedAt: timestamp("closed_at"),
+  bankName: text("bank_name"),
+  bankAccountName: text("bank_account_name"),
+  bankAccountNumber: text("bank_account_number"),
+  bankBranch: text("bank_branch"),
+  bankInstructions: text("bank_instructions"),
 });
 
 // ─── Shares ──────────────────────────────────────────────────────────────────
