@@ -198,7 +198,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* Summary cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 24 }}>
+      <div className="expenses-summary">
         <div style={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 12, padding: "14px 18px" }}>
           <div style={{ fontSize: 10, color: "#475569", fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }}>Total Approved</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: "#10b981" }}>{bdt(totalApproved)}</div>
@@ -230,8 +230,8 @@ export default function ExpensesPage() {
       </div>
 
       {/* Table */}
-      <div style={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 12, overflow: "hidden" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr auto", gap: 0 }}>
+      <div className="table-responsive" style={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr auto", gap: 0, minWidth: 580 }}>
           {/* Header */}
           {["Expense", "Description", "Category", "Amount", "Status", "Actions"].map(h => (
             <div key={h} style={{ padding: "10px 16px", fontSize: 10, color: "#475569", fontWeight: 700, textTransform: "uppercase", borderBottom: "1px solid #1e1e38" }}>{h}</div>
