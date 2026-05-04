@@ -103,6 +103,20 @@ html, body {
   gap: 20px;
 }
 
+/* Responsive table wrapper */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Expenses summary cards */
+.expenses-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
 /* ---- Mobile sidebar ---- */
 .app-sidebar { transition: transform 0.25s ease; }
 
@@ -147,6 +161,10 @@ html, body {
   .chart-grid {
     grid-template-columns: 1fr !important;
   }
+
+  .expenses-summary {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -155,6 +173,10 @@ html, body {
   }
   .app-main {
     padding: 72px 12px 24px !important;
+  }
+
+  .expenses-summary {
+    grid-template-columns: 1fr !important;
   }
 }
 
