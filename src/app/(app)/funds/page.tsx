@@ -7,7 +7,7 @@ import { faPlus, faLayerGroup, faChevronRight, faPencil, faUniversity } from "@f
 import useSWR from "swr";
 import { format } from "date-fns";
 
-const fetcher = (u: string) => fetch(u).then(r => r.json());
+const fetcher = (u: string) => fetch(u).then(r => { if (!r.ok) throw new Error("API error"); return r.json(); });
 function bdt(n: number) { return `৳${(n || 0).toLocaleString("en-IN")}`; }
 
 function Badge({ status }: { status: string }) {
@@ -143,19 +143,43 @@ export default function FundsPage() {
               </div>
             </div>
 
-            {(f.bankName || f.bankAccountNumber) && (
-              <div style={{ background: "#0a0a18", border: "1px solid #1e1e38", borderRadius: 8, padding: "10px 14px", marginBottom: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                  <FontAwesomeIcon icon={faUniversity} style={{ color: "#7c3aed", fontSize: 11 }} />
-                  <span style={{ fontSize: 10, color: "#7c3aed", fontWeight: 700, textTransform: "uppercase" }}>Bank Account</span>
+            {!!(f.bankName || f.bankAccountNumber) && (
+              <div style={{ background: "#0a0a18", border: "1px solid #2d1f6e", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, paddingBottom: 10, borderBottom: "1px solid #1e1e38" }}>
+                  <FontAwesomeIcon icon={faUniversity} style={{ color: "#7c3aed", fontSize: 12 }} />
+                  <span style={{ fontSize: 10, color: "#7c3aed", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Bank Account</span>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, fontSize: 12 }}>
-                  {f.bankName && <div><span style={{ color: "#475569" }}>Bank: </span><span style={{ color: "#cbd5e1" }}>{String(f.bankName)}</span></div>}
-                  {f.bankAccountName && <div><span style={{ color: "#475569" }}>A/C Name: </span><span style={{ color: "#cbd5e1" }}>{String(f.bankAccountName)}</span></div>}
-                  {f.bankAccountNumber && <div><span style={{ color: "#475569" }}>A/C No: </span><span style={{ color: "#f1f5f9", fontWeight: 600 }}>{String(f.bankAccountNumber)}</span></div>}
-                  {f.bankBranch && <div><span style={{ color: "#475569" }}>Branch: </span><span style={{ color: "#cbd5e1" }}>{String(f.bankBranch)}</span></div>}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 12px" }}>
+                  {!!f.bankName && (
+                    <div>
+                      <div style={{ fontSize: 10, color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>Bank</div>
+                      <div style={{ fontSize: 13, color: "#e2e8f0", fontWeight: 500 }}>{String(f.bankName)}</div>
+                    </div>
+                  )}
+                  {!!f.bankAccountName && (
+                    <div>
+                      <div style={{ fontSize: 10, color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>A/C Name</div>
+                      <div style={{ fontSize: 13, color: "#e2e8f0", fontWeight: 500 }}>{String(f.bankAccountName)}</div>
+                    </div>
+                  )}
+                  {!!f.bankAccountNumber && (
+                    <div>
+                      <div style={{ fontSize: 10, color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>A/C Number</div>
+                      <div style={{ fontSize: 14, color: "#f1f5f9", fontWeight: 700, letterSpacing: 0.5, fontFamily: "monospace" }}>{String(f.bankAccountNumber)}</div>
+                    </div>
+                  )}
+                  {!!f.bankBranch && (
+                    <div>
+                      <div style={{ fontSize: 10, color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>Branch</div>
+                      <div style={{ fontSize: 13, color: "#e2e8f0", fontWeight: 500 }}>{String(f.bankBranch)}</div>
+                    </div>
+                  )}
                 </div>
-                {f.bankInstructions && <p style={{ margin: "8px 0 0", fontSize: 11, color: "#64748b", fontStyle: "italic" }}>{String(f.bankInstructions)}</p>}
+                {!!f.bankInstructions && (
+                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #1e1e38" }}>
+                    <p style={{ margin: 0, fontSize: 12, color: "#64748b", fontStyle: "italic", lineHeight: 1.5 }}>{String(f.bankInstructions)}</p>
+                  </div>
+                )}
               </div>
             )}
 

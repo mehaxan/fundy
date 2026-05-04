@@ -8,7 +8,7 @@ import {
   faChartLine, faUsers, faLayerGroup, faChartPie,
   faBuilding, faShare, faWallet, faPeopleGroup,
   faVoteYea, faTriangleExclamation, faArrowTrendUp,
-  faSignOutAlt, faGear, faChevronRight, faKey, faBars,
+  faSignOutAlt, faGear, faChevronRight, faKey, faBars, faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -182,6 +182,7 @@ export default function Sidebar({ userName, userRole, userEmail }: SidebarProps)
         <NavItem href="/meetings" icon={faPeopleGroup} label="Meetings" active={pathname.startsWith("/meetings")} />
         <NavItem href="/votes" icon={faVoteYea} label="Votes" active={pathname.startsWith("/votes")} />
         <NavItem href="/fines" icon={faTriangleExclamation} label="Fines" active={pathname.startsWith("/fines")} />
+        <NavItem href="/expenses" icon={faReceipt} label="Expenses" active={pathname.startsWith("/expenses")} />
         <NavItem href="/projections" icon={faArrowTrendUp} label="Projections" active={pathname.startsWith("/projections")} />
 
         {isAdmin && (

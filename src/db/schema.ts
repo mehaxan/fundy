@@ -64,6 +64,7 @@ export const walletTransactions = pgTable("wallet_transactions", {
   description: text("description").notNull(),
   status: txnStatusEnum("status").notNull().default("completed"),
   referenceId: text("reference_id"),
+  receiptUrl: text("receipt_url"),
   createdBy: uuid("created_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -193,6 +194,25 @@ export const fines = pgTable("fines", {
   issuedAt: timestamp("issued_at").notNull().defaultNow(),
   paidAt: timestamp("paid_at"),
   notes: text("notes"),
+});
+
+// ─── Expenses ────────────────────────────────────────────────────────────────
+export const expenseStatusEnum = pgEnum("expense_status", ["pending", "approved", "rejected"]);
+export const expenses = pgTable("expenses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  description: text("description"),
+  amount: integer("amount").notNull(),
+  category: text("category").notNull().default("general"),
+  status: expenseStatusEnum("status").notNull().default("pending"),
+  expenseDate: timestamp("expense_date").notNull(),
+  fundId: uuid("fund_id").references(() => funds.id),
+  receiptUrl: text("receipt_url"),
+  notes: text("notes"),
+  createdBy: uuid("created_by").notNull().references(() => users.id),
+  approvedBy: uuid("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 // ─── Monthly Snapshots (growth tracking & projections) ────────────────────────

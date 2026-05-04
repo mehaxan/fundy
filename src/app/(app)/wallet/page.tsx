@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faArrowUp, faArrowDown, faWallet, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faArrowUp, faArrowDown, faWallet, faSearch, faReceipt } from "@fortawesome/free-solid-svg-icons";
 import useSWR from "swr";
 import { format } from "date-fns";
 import {
@@ -62,7 +62,7 @@ export default function WalletPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("all");
-  const [form, setForm] = useState({ userId: "", type: "deposit", amount: "", description: "", direction: "credit" });
+  const [form, setForm] = useState({ walletId: "", type: "deposit", amount: "", description: "", direction: "credit", receiptUrl: "" });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -89,7 +89,7 @@ export default function WalletPage() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...form, amount: Number(form.amount) }),
     });
-    if (res.ok) { mutTxns(); setShowAdd(false); setForm({ userId: "", type: "deposit", amount: "", description: "", direction: "credit" }); }
+    if (res.ok) { mutTxns(); setShowAdd(false); setForm({ walletId: "", type: "deposit", amount: "", description: "", direction: "credit", receiptUrl: "" }); }
     else { const j = await res.json(); setMsg(j.error); }
     setSaving(false);
   }
@@ -135,7 +135,7 @@ export default function WalletPage() {
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: "#10b981" }}>{bdt(Number(w.balance))}</div>
                   <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
-                    {w.lastTransactionAt ? format(new Date(String(w.lastTransactionAt)), "dd MMM yyyy") : "No transactions"}
+                    {Number(w.txnCount ?? 0) > 0 ? `${w.txnCount} transaction${Number(w.txnCount) === 1 ? "" : "s"}` : "No transactions"}
                   </div>
                 </div>
               ))}
@@ -187,8 +187,8 @@ export default function WalletPage() {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              {["", isAdmin ? "Member" : null, "Description", "Type", "Amount", "Date"].filter(Boolean).map(h => (
-                <th key={String(h)} style={{ textAlign: "left", fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: 0.5, padding: "12px 16px", borderBottom: "1px solid #1e1e38" }}>{h}</th>
+              {(["", isAdmin ? "Member" : null, "Description", "Type", "Amount", "Date", "Receipt"] as (string | null)[]).filter(h => h !== null).map((h, i) => (
+                <th key={i} style={{ textAlign: "left", fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: 0.5, padding: "12px 16px", borderBottom: "1px solid #1e1e38" }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -216,6 +216,13 @@ export default function WalletPage() {
                 <td style={{ padding: "10px 16px", borderBottom: "1px solid #141428", fontSize: 12, color: "#64748b", whiteSpace: "nowrap" }}>
                   {t.createdAt ? format(new Date(String(t.createdAt)), "dd MMM yyyy, hh:mm a") : "—"}
                 </td>
+                <td style={{ padding: "10px 16px", borderBottom: "1px solid #141428", width: 36 }}>
+                  {!!t.receiptUrl && (
+                    <a href={String(t.receiptUrl)} target="_blank" rel="noopener noreferrer" title="View receipt" style={{ color: "#7c3aed", display: "inline-flex", alignItems: "center" }}>
+                      <FontAwesomeIcon icon={faReceipt} style={{ fontSize: 13 }} />
+                    </a>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -231,10 +238,10 @@ export default function WalletPage() {
           <form onSubmit={addTransaction} style={{ display: "flex", flexDirection: "column", gap: 14, flex: 1 }}>
             <div>
               <label style={{ fontSize: 11, color: "#64748b", fontWeight: 700, display: "block", marginBottom: 4 }}>Member *</label>
-              <select required value={form.userId} onChange={e => setForm(f => ({...f, userId: e.target.value}))} style={inp}>
+              <select required value={form.walletId} onChange={e => setForm(f => ({...f, walletId: e.target.value}))} style={inp}>
                 <option value="">Select member…</option>
-                {(users as Record<string, unknown>[]).map(u => (
-                  <option key={String(u.id)} value={String(u.id)}>{String(u.name)} — {String(u.email)}</option>
+                {(wallets as Record<string, unknown>[]).map(w => (
+                  <option key={String(w.id)} value={String(w.id)}>{String(w.userName ?? "—")} — {String(w.userEmail ?? "")}</option>
                 ))}
               </select>
             </div>
@@ -265,6 +272,10 @@ export default function WalletPage() {
             <div>
               <label style={{ fontSize: 11, color: "#64748b", fontWeight: 700, display: "block", marginBottom: 4 }}>Description</label>
               <input value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} style={inp} placeholder="Transaction note…" />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: "#64748b", fontWeight: 700, display: "block", marginBottom: 4 }}>Receipt URL</label>
+              <input value={form.receiptUrl} onChange={e => setForm(f => ({...f, receiptUrl: e.target.value}))} style={inp} placeholder="https://…" />
             </div>
             {msg && <div style={{ color: "#f87171", fontSize: 12 }}>{msg}</div>}
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: "auto", paddingTop: 16, paddingBottom: 28 }}>
