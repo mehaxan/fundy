@@ -21,6 +21,7 @@ export async function GET() {
           direction: walletTransactions.direction,
           amount: walletTransactions.amount,
           description: walletTransactions.description,
+          receiptUrl: walletTransactions.receiptUrl,
           createdAt: walletTransactions.createdAt,
         })
         .from(walletTransactions)

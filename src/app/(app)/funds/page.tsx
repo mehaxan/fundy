@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faLayerGroup, faChevronRight, faPencil } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faLayerGroup, faChevronRight, faPencil, faUniversity } from "@fortawesome/free-solid-svg-icons";
 import useSWR from "swr";
 import { format } from "date-fns";
 
-const fetcher = (u: string) => fetch(u).then(r => r.json());
+const fetcher = (u: string) => fetch(u).then(r => { if (!r.ok) throw new Error("API error"); return r.json(); });
 function bdt(n: number) { return `৳${(n || 0).toLocaleString("en-IN")}`; }
 
 function Badge({ status }: { status: string }) {
@@ -53,21 +53,21 @@ export default function FundsPage() {
   const { data: funds = [], mutate, isLoading } = useSWR<Record<string, unknown>[]>("/api/funds", fetcher);
   const [showCreate, setShowCreate] = useState(false);
   const [editFund, setEditFund] = useState<Record<string, unknown> | null>(null);
-  const [form, setForm] = useState({ name: "", description: "", sharePrice: "" });
+  const [form, setForm] = useState({ name: "", description: "", sharePrice: "", bankName: "", bankAccountName: "", bankAccountNumber: "", bankBranch: "", bankInstructions: "" });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
 
   async function createFund(e: React.FormEvent) {
     e.preventDefault(); setSaving(true); setMsg("");
     const res = await fetch("/api/funds", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, sharePrice: Number(form.sharePrice) }) });
-    if (res.ok) { mutate(); setShowCreate(false); setForm({ name: "", description: "", sharePrice: "" }); }
+    if (res.ok) { mutate(); setShowCreate(false); setForm({ name: "", description: "", sharePrice: "", bankName: "", bankAccountName: "", bankAccountNumber: "", bankBranch: "", bankInstructions: "" }); }
     else { const j = await res.json(); setMsg(j.error); }
     setSaving(false);
   }
 
   async function updateFund(e: React.FormEvent) {
     e.preventDefault(); if (!editFund) return; setSaving(true); setMsg("");
-    const res = await fetch(`/api/funds/${editFund.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: form.name, description: form.description, sharePrice: Number(form.sharePrice) }) });
+    const res = await fetch(`/api/funds/${editFund.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: form.name, description: form.description, sharePrice: Number(form.sharePrice), bankName: form.bankName, bankAccountName: form.bankAccountName, bankAccountNumber: form.bankAccountNumber, bankBranch: form.bankBranch, bankInstructions: form.bankInstructions }) });
     if (res.ok) { mutate(); setEditFund(null); }
     else { const j = await res.json(); setMsg(j.error); }
     setSaving(false);
@@ -116,7 +116,7 @@ export default function FundsPage() {
                   <Badge status={String(f.status)} />
                 </div>
               </div>
-              <button onClick={() => { setEditFund(f); setForm({ name: String(f.name), description: String(f.description ?? ""), sharePrice: String(f.sharePrice) }); setMsg(""); }}
+              <button onClick={() => { setEditFund(f); setForm({ name: String(f.name), description: String(f.description ?? ""), sharePrice: String(f.sharePrice), bankName: String(f.bankName ?? ""), bankAccountName: String(f.bankAccountName ?? ""), bankAccountNumber: String(f.bankAccountNumber ?? ""), bankBranch: String(f.bankBranch ?? ""), bankInstructions: String(f.bankInstructions ?? "") }); setMsg(""); }}
                 style={{ background: "#141428", border: "1px solid #1e1e38", borderRadius: 6, padding: "5px 9px", cursor: "pointer", color: "#64748b" }}>
                 <FontAwesomeIcon icon={faPencil} style={{ fontSize: 11 }} />
               </button>
@@ -142,6 +142,46 @@ export default function FundsPage() {
                 <div style={{ fontSize: 16, fontWeight: 700, color: Number(f.pendingShares) > 0 ? "#f59e0b" : "#64748b" }}>{String(f.pendingShares ?? 0)}</div>
               </div>
             </div>
+
+            {!!(f.bankName || f.bankAccountNumber) && (
+              <div style={{ background: "#0a0a18", border: "1px solid #2d1f6e", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, paddingBottom: 10, borderBottom: "1px solid #1e1e38" }}>
+                  <FontAwesomeIcon icon={faUniversity} style={{ color: "#7c3aed", fontSize: 12 }} />
+                  <span style={{ fontSize: 10, color: "#7c3aed", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Bank Account</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 12px" }}>
+                  {!!f.bankName && (
+                    <div>
+                      <div style={{ fontSize: 10, color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>Bank</div>
+                      <div style={{ fontSize: 13, color: "#e2e8f0", fontWeight: 500 }}>{String(f.bankName)}</div>
+                    </div>
+                  )}
+                  {!!f.bankAccountName && (
+                    <div>
+                      <div style={{ fontSize: 10, color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>A/C Name</div>
+                      <div style={{ fontSize: 13, color: "#e2e8f0", fontWeight: 500 }}>{String(f.bankAccountName)}</div>
+                    </div>
+                  )}
+                  {!!f.bankAccountNumber && (
+                    <div>
+                      <div style={{ fontSize: 10, color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>A/C Number</div>
+                      <div style={{ fontSize: 14, color: "#f1f5f9", fontWeight: 700, letterSpacing: 0.5, fontFamily: "monospace" }}>{String(f.bankAccountNumber)}</div>
+                    </div>
+                  )}
+                  {!!f.bankBranch && (
+                    <div>
+                      <div style={{ fontSize: 10, color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>Branch</div>
+                      <div style={{ fontSize: 13, color: "#e2e8f0", fontWeight: 500 }}>{String(f.bankBranch)}</div>
+                    </div>
+                  )}
+                </div>
+                {!!f.bankInstructions && (
+                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #1e1e38" }}>
+                    <p style={{ margin: 0, fontSize: 12, color: "#64748b", fontStyle: "italic", lineHeight: 1.5 }}>{String(f.bankInstructions)}</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #1e1e38", paddingTop: 12 }}>
               <span style={{ fontSize: 11, color: "#64748b" }}>
@@ -178,6 +218,19 @@ export default function FundsPage() {
             <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Fund Name *</label><input required value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} style={inp} placeholder="e.g. Growth Fund 2025" /></div>
             <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Description</label><textarea value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} style={{ ...inp, resize: "vertical", minHeight: 80 }} placeholder="What is this fund for?" /></div>
             <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Share Price (BDT) *</label><input required type="number" min="1" value={form.sharePrice} onChange={e => setForm(f => ({...f, sharePrice: e.target.value}))} style={inp} placeholder="e.g. 1000" /></div>
+            <div style={{ borderTop: "1px solid #1e1e38", paddingTop: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+                <FontAwesomeIcon icon={faUniversity} style={{ color: "#7c3aed", fontSize: 12 }} />
+                <span style={{ fontSize: 11, color: "#7c3aed", fontWeight: 700, textTransform: "uppercase" }}>Banking Information</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Bank Name</label><input value={form.bankName} onChange={e => setForm(f => ({...f, bankName: e.target.value}))} style={inp} placeholder="e.g. Dutch-Bangla Bank" /></div>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Account Holder Name</label><input value={form.bankAccountName} onChange={e => setForm(f => ({...f, bankAccountName: e.target.value}))} style={inp} placeholder="e.g. Fundy Investment Group" /></div>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Account Number</label><input value={form.bankAccountNumber} onChange={e => setForm(f => ({...f, bankAccountNumber: e.target.value}))} style={inp} placeholder="e.g. 1234567890" /></div>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Branch</label><input value={form.bankBranch} onChange={e => setForm(f => ({...f, bankBranch: e.target.value}))} style={inp} placeholder="e.g. Gulshan Branch" /></div>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Payment Instructions</label><textarea value={form.bankInstructions} onChange={e => setForm(f => ({...f, bankInstructions: e.target.value}))} style={{ ...inp, resize: "vertical", minHeight: 60 }} placeholder="e.g. Please include your name and fund reference in the transfer note." /></div>
+              </div>
+            </div>
             {msg && <div style={{ color: "#f87171", fontSize: 12 }}>{msg}</div>}
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: "auto", paddingTop: 16, paddingBottom: 28 }}>
               <button type="button" onClick={() => setShowCreate(false)} style={{ background: "#141428", border: "1px solid #1e1e38", color: "#94a3b8", borderRadius: 8, padding: "9px 16px", fontSize: 13, cursor: "pointer" }}>Cancel</button>
@@ -196,6 +249,19 @@ export default function FundsPage() {
             <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Fund Name</label><input value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} style={inp} /></div>
             <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Description</label><textarea value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} style={{ ...inp, resize: "vertical", minHeight: 80 }} /></div>
             <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Share Price (BDT)</label><input type="number" value={form.sharePrice} onChange={e => setForm(f => ({...f, sharePrice: e.target.value}))} style={inp} /></div>
+            <div style={{ borderTop: "1px solid #1e1e38", paddingTop: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+                <FontAwesomeIcon icon={faUniversity} style={{ color: "#7c3aed", fontSize: 12 }} />
+                <span style={{ fontSize: 11, color: "#7c3aed", fontWeight: 700, textTransform: "uppercase" }}>Banking Information</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Bank Name</label><input value={form.bankName} onChange={e => setForm(f => ({...f, bankName: e.target.value}))} style={inp} /></div>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Account Holder Name</label><input value={form.bankAccountName} onChange={e => setForm(f => ({...f, bankAccountName: e.target.value}))} style={inp} /></div>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Account Number</label><input value={form.bankAccountNumber} onChange={e => setForm(f => ({...f, bankAccountNumber: e.target.value}))} style={inp} /></div>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Branch</label><input value={form.bankBranch} onChange={e => setForm(f => ({...f, bankBranch: e.target.value}))} style={inp} /></div>
+                <div><label style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Payment Instructions</label><textarea value={form.bankInstructions} onChange={e => setForm(f => ({...f, bankInstructions: e.target.value}))} style={{ ...inp, resize: "vertical", minHeight: 60 }} /></div>
+              </div>
+            </div>
             {msg && <div style={{ color: "#f87171", fontSize: 12 }}>{msg}</div>}
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: "auto", paddingTop: 16, paddingBottom: 28 }}>
               <button type="button" onClick={() => setEditFund(null)} style={{ background: "#141428", border: "1px solid #1e1e38", color: "#94a3b8", borderRadius: 8, padding: "9px 16px", fontSize: 13, cursor: "pointer" }}>Cancel</button>

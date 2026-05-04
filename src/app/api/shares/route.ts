@@ -30,13 +30,15 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const session = await requireSession();
-    const { fundId, quantity, notes } = await req.json();
+    const { fundId, quantity, notes, userId: bodyUserId } = await req.json();
     if (!fundId || !quantity) return NextResponse.json({ error: "fundId and quantity required" }, { status: 400 });
     const [fund] = await db.select().from(funds).where(and(eq(funds.id, fundId), eq(funds.status, "active")));
     if (!fund) return NextResponse.json({ error: "Fund not found or not active" }, { status: 404 });
+    // Admin can request on behalf of any user
+    const targetUserId = session.role === "admin" && bodyUserId ? bodyUserId : session.sub;
     const qty = Number(quantity);
     const [share] = await db.insert(shares).values({
-      fundId, userId: session.sub, quantity: qty,
+      fundId, userId: targetUserId, quantity: qty,
       unitPrice: fund.sharePrice, totalAmount: qty * fund.sharePrice, notes,
     }).returning();
     return NextResponse.json(share, { status: 201 });

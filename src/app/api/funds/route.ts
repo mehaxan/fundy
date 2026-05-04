@@ -11,6 +11,9 @@ export async function GET() {
       id: funds.id, name: funds.name, description: funds.description,
       sharePrice: funds.sharePrice, status: funds.status,
       createdAt: funds.createdAt, closedAt: funds.closedAt,
+      bankName: funds.bankName, bankAccountName: funds.bankAccountName,
+      bankAccountNumber: funds.bankAccountNumber, bankBranch: funds.bankBranch,
+      bankInstructions: funds.bankInstructions,
     }).from(funds).orderBy(desc(funds.createdAt));
 
     const enriched = await Promise.all(rows.map(async (f) => {
@@ -32,10 +35,13 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const session = await requireAdmin();
-    const { name, description, sharePrice } = await req.json();
+    const { name, description, sharePrice, bankName, bankAccountName, bankAccountNumber, bankBranch, bankInstructions } = await req.json();
     if (!name || !sharePrice) return NextResponse.json({ error: "name and sharePrice required" }, { status: 400 });
     const [fund] = await db.insert(funds).values({
       name, description, sharePrice: Number(sharePrice), createdBy: session.sub,
+      bankName: bankName || null, bankAccountName: bankAccountName || null,
+      bankAccountNumber: bankAccountNumber || null, bankBranch: bankBranch || null,
+      bankInstructions: bankInstructions || null,
     }).returning();
     return NextResponse.json(fund, { status: 201 });
   } catch (err: unknown) {

@@ -53,8 +53,9 @@ export default function SharesPage() {
   const { data: shares = [], mutate } = useSWR<Record<string, unknown>[]>("/api/shares", fetcher);
   const { data: funds = [] } = useSWR<Record<string, unknown>[]>("/api/funds", fetcher);
   const { data: me } = useSWR<Record<string, unknown>>("/api/auth/me", fetcher);
+  const { data: users = [] } = useSWR<Record<string, unknown>[]>("/api/users", fetcher);
   const [showRequest, setShowRequest] = useState(false);
-  const [form, setForm] = useState({ fundId: "", quantity: "" });
+  const [form, setForm] = useState({ fundId: "", quantity: "", userId: "" });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [filter, setFilter] = useState("all");
@@ -69,8 +70,10 @@ export default function SharesPage() {
 
   async function requestShare(e: React.FormEvent) {
     e.preventDefault(); setSaving(true); setMsg("");
-    const res = await fetch("/api/shares", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fundId: form.fundId, quantity: Number(form.quantity) }) });
-    if (res.ok) { mutate(); setShowRequest(false); setForm({ fundId: "", quantity: "" }); }
+    const body: Record<string, unknown> = { fundId: form.fundId, quantity: Number(form.quantity) };
+    if (isAdmin && form.userId) body.userId = form.userId;
+    const res = await fetch("/api/shares", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (res.ok) { mutate(); setShowRequest(false); setForm({ fundId: "", quantity: "", userId: "" }); }
     else { const j = await res.json(); setMsg(j.error); }
     setSaving(false);
   }
@@ -178,6 +181,17 @@ export default function SharesPage() {
       {showRequest && (
         <Modal title="Request Share Purchase" onClose={() => setShowRequest(false)}>
           <form onSubmit={requestShare} style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
+            {isAdmin && (
+              <div>
+                <label style={{ fontSize: 11, color: "#64748b", fontWeight: 700, display: "block", marginBottom: 6 }}>Member <span style={{ color: "#475569", fontWeight: 400 }}>(leave blank for yourself)</span></label>
+                <select value={form.userId} onChange={e => setForm(f => ({...f, userId: e.target.value}))} style={inp}>
+                  <option value="">— Self (admin) —</option>
+                  {(users as Record<string, unknown>[]).map(u => (
+                    <option key={String(u.id)} value={String(u.id)}>{String(u.name)} — {String(u.email)}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div>
               <label style={{ fontSize: 11, color: "#64748b", fontWeight: 700, display: "block", marginBottom: 6 }}>Fund *</label>
               <select required value={form.fundId} onChange={e => setForm(f => ({...f, fundId: e.target.value}))} style={inp}>
