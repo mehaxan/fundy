@@ -18,7 +18,7 @@ export async function GET() {
       .orderBy(desc(votes.createdAt));
     const enriched = await Promise.all(rows.map(async (v) => {
       const [res] = await db.select({ total: count() }).from(voteResponses).where(eq(voteResponses.voteId, v.id));
-      return { ...v, responseCount: res?.total ?? 0 };
+      return { ...v, closesAt: v.endAt, responseCount: res?.total ?? 0 };
     }));
     return NextResponse.json(enriched);
   } catch (err: unknown) {
@@ -30,12 +30,14 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const session = await requireAdmin();
-    const { title, description, options, meetingId, startAt, endAt } = await req.json();
-    if (!title || !options?.length) return NextResponse.json({ error: "title and options required" }, { status: 400 });
+    const { title, description, options, meetingId, startAt, endAt, closesAt } = await req.json();
+    if (!title) return NextResponse.json({ error: "title is required" }, { status: 400 });
+    const resolvedOptions = options?.length ? options : ["yes", "no", "abstain"];
+    const resolvedEndAt = endAt ?? closesAt;
     const [vote] = await db.insert(votes).values({
-      title, description, options, meetingId, status: "draft",
+      title, description, options: resolvedOptions, meetingId, status: "open",
       startAt: startAt ? new Date(startAt) : undefined,
-      endAt: endAt ? new Date(endAt) : undefined,
+      endAt: resolvedEndAt ? new Date(resolvedEndAt) : undefined,
       createdBy: session.sub,
     }).returning();
     return NextResponse.json(vote, { status: 201 });

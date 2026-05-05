@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const abstainCount = responses.filter(r => r.response === "abstain").length;
 
     return NextResponse.json({
-      ...vote, responses, myResponse, yesCount, noCount, abstainCount,
+      ...vote, closesAt: vote.endAt, responses, myResponse, yesCount, noCount, abstainCount,
     });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
