@@ -14,7 +14,7 @@ export async function GET() {
       userId: shares.userId, fundId: shares.fundId,
       userName: users.name, userEmail: users.email, fundName: funds.name,
     }).from(shares)
-      .leftJoin(users, eq(shares.userId, users.id))
+      .leftJoin(users, and(eq(shares.userId, users.id), eq(users.isActive, true)))
       .leftJoin(funds, eq(shares.fundId, funds.id));
 
     const rows = session.role === "admin"

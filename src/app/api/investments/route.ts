@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { investments, funds, users } from "@/db/schema";
 import { requireSession, requireAdmin } from "@/lib/session";
@@ -16,7 +16,7 @@ export async function GET() {
       fundId: investments.fundId, fundName: funds.name, createdByName: users.name,
     }).from(investments)
       .leftJoin(funds, eq(investments.fundId, funds.id))
-      .leftJoin(users, eq(investments.createdBy, users.id))
+      .leftJoin(users, and(eq(investments.createdBy, users.id), eq(users.isActive, true)))
       .orderBy(desc(investments.createdAt));
     return NextResponse.json(rows);
   } catch (err: unknown) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { desc, eq, count } from "drizzle-orm";
+import { desc, eq, count, and } from "drizzle-orm";
 import { db } from "@/db";
 import { meetings, meetingAttendees, users } from "@/db/schema";
 import { requireSession, requireAdmin } from "@/lib/session";
@@ -13,7 +13,7 @@ export async function GET() {
       agenda: meetings.agenda, minutes: meetings.minutes, status: meetings.status,
       createdAt: meetings.createdAt, createdByName: users.name,
     }).from(meetings)
-      .leftJoin(users, eq(meetings.createdBy, users.id))
+      .leftJoin(users, and(eq(meetings.createdBy, users.id), eq(users.isActive, true)))
       .orderBy(desc(meetings.scheduledAt));
 
     const enriched = await Promise.all(rows.map(async (m) => {

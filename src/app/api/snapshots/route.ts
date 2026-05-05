@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, getSession } from "@/lib/session";
 import { db } from "@/db";
-import { monthlySnapshots, investments, assets, wallets, users } from "@/db/schema";
+import { monthlySnapshots, investments, assets, wallets, users, expenses } from "@/db/schema";
 import { eq, sum, count, and } from "drizzle-orm";
 
 export async function GET() {
@@ -41,16 +41,24 @@ export async function POST() {
       total: count(users.id),
     }).from(users).where(eq(users.isActive, true));
 
-    const totalInvested = Number(invResult?.totalInvested ?? 0);
-    const totalReturns = Number(invResult?.totalReturns ?? 0);
-    const totalAssets = Number(assetResult?.totalAssets ?? 0);
-    const totalWalletBalance = Number(walletResult?.totalWallet ?? 0);
+    const [expenseResult] = await db
+      .select({ total: sum(expenses.amount) })
+      .from(expenses)
+      .where(eq(expenses.status, "approved"));
+
+    const r2 = (n: number) => Math.round(n * 100) / 100;
+    const totalInvested = r2(Number(invResult?.totalInvested ?? 0));
+    const totalReturns = r2(Number(invResult?.totalReturns ?? 0));
+    const totalAssets = r2(Number(assetResult?.totalAssets ?? 0));
+    const totalWalletBalance = r2(Number(walletResult?.totalWallet ?? 0));
     const totalMembers = Number(memberResult?.total ?? 0);
-    const netWorth = totalInvested + totalReturns + totalAssets + totalWalletBalance;
+    const totalApprovedExpenses = r2(Number(expenseResult?.total ?? 0));
+    // Net worth: expenses already reflected in wallet balances via debits — no double-subtraction
+    const netWorth = r2(totalInvested + totalReturns + totalAssets + totalWalletBalance);
 
     const [snap] = await db.insert(monthlySnapshots).values({
       year, month, totalInvested, totalReturns, totalAssets,
-      totalWalletBalance, totalMembers, netWorth,
+      totalWalletBalance, totalMembers, totalExpenses: totalApprovedExpenses, netWorth,
     }).returning();
 
     return NextResponse.json(snap, { status: 201 });

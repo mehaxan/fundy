@@ -13,7 +13,7 @@ export async function GET() {
       phone: users.phone, role: users.role, isActive: users.isActive,
       address: users.address, joinedAt: users.joinedAt, createdAt: users.createdAt,
       walletBalance: wallets.balance,
-    }).from(users).leftJoin(wallets, eq(wallets.userId, users.id)).orderBy(desc(users.createdAt));
+    }).from(users).leftJoin(wallets, eq(wallets.userId, users.id)).where(eq(users.isActive, true)).orderBy(desc(users.createdAt));
     return NextResponse.json(rows);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Server error";

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { funds, shares, users } from "@/db/schema";
 import { requireSession, requireAdmin } from "@/lib/session";
@@ -15,7 +15,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       totalAmount: shares.totalAmount, status: shares.status,
       requestedAt: shares.requestedAt, notes: shares.notes, userId: shares.userId,
       userName: users.name, userEmail: users.email,
-    }).from(shares).leftJoin(users, eq(shares.userId, users.id)).where(eq(shares.fundId, id));
+    }).from(shares).leftJoin(users, and(eq(shares.userId, users.id), eq(users.isActive, true))).where(eq(shares.fundId, id));
     return NextResponse.json({ ...fund, shares: shareRows });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Server error";

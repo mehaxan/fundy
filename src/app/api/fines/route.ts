@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { fines, users } from "@/db/schema";
 import { requireSession, requireAdmin } from "@/lib/session";
@@ -11,7 +11,7 @@ export async function GET() {
       id: fines.id, reason: fines.reason, amount: fines.amount,
       status: fines.status, issuedAt: fines.issuedAt, paidAt: fines.paidAt, notes: fines.notes,
       userId: fines.userId, userName: users.name,
-    }).from(fines).leftJoin(users, eq(fines.userId, users.id));
+    }).from(fines).leftJoin(users, and(eq(fines.userId, users.id), eq(users.isActive, true)));
     const rows = session.role === "admin"
       ? await baseQ.orderBy(desc(fines.issuedAt))
       : await baseQ.where(eq(fines.userId, session.sub)).orderBy(desc(fines.issuedAt));

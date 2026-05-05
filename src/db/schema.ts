@@ -7,6 +7,7 @@ import {
   timestamp,
   pgEnum,
   jsonb,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 
 // ─── Enums ───────────────────────────────────────────────────────────────────
@@ -28,7 +29,7 @@ export const meetingTypeEnum = pgEnum("meeting_type", [
 export const voteStatusEnum = pgEnum("vote_status", ["draft", "open", "closed"]);
 export const fineStatusEnum = pgEnum("fine_status", ["pending", "paid", "waived"]);
 export const txnTypeEnum = pgEnum("txn_type", [
-  "deposit", "withdrawal", "fine", "dividend", "investment_return", "manual",
+  "deposit", "withdrawal", "fine", "dividend", "investment_return", "manual", "expense",
 ]);
 export const txnStatusEnum = pgEnum("txn_status", ["pending", "completed", "cancelled"]);
 
@@ -50,7 +51,7 @@ export const users = pgTable("users", {
 export const wallets = pgTable("wallets", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().unique().references(() => users.id),
-  balance: integer("balance").notNull().default(0),
+  balance: doublePrecision("balance").notNull().default(0),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
@@ -59,7 +60,7 @@ export const walletTransactions = pgTable("wallet_transactions", {
   id: uuid("id").primaryKey().defaultRandom(),
   walletId: uuid("wallet_id").notNull().references(() => wallets.id),
   type: txnTypeEnum("type").notNull(),
-  amount: integer("amount").notNull(),
+  amount: doublePrecision("amount").notNull(),
   direction: text("direction", { enum: ["credit", "debit"] }).notNull(),
   description: text("description").notNull(),
   status: txnStatusEnum("status").notNull().default("completed"),
@@ -74,7 +75,7 @@ export const funds = pgTable("funds", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   description: text("description"),
-  sharePrice: integer("share_price").notNull(),
+  sharePrice: doublePrecision("share_price").notNull(),
   status: fundStatusEnum("status").notNull().default("active"),
   createdBy: uuid("created_by").notNull().references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -92,8 +93,8 @@ export const shares = pgTable("shares", {
   fundId: uuid("fund_id").notNull().references(() => funds.id),
   userId: uuid("user_id").notNull().references(() => users.id),
   quantity: integer("quantity").notNull(),
-  unitPrice: integer("unit_price").notNull(),
-  totalAmount: integer("total_amount").notNull(),
+  unitPrice: doublePrecision("unit_price").notNull(),
+  totalAmount: doublePrecision("total_amount").notNull(),
   status: shareStatusEnum("status").notNull().default("pending"),
   requestedAt: timestamp("requested_at").notNull().defaultNow(),
   processedBy: uuid("processed_by").references(() => users.id),
@@ -107,9 +108,9 @@ export const investments = pgTable("investments", {
   name: text("name").notNull(),
   description: text("description"),
   category: text("category").notNull().default("general"),
-  investedAmount: integer("invested_amount").notNull(),
-  expectedReturn: integer("expected_return"),
-  actualReturn: integer("actual_return"),
+  investedAmount: doublePrecision("invested_amount").notNull(),
+  expectedReturn: doublePrecision("expected_return"),
+  actualReturn: doublePrecision("actual_return"),
   status: investmentStatusEnum("status").notNull().default("planned"),
   startDate: timestamp("start_date"),
   endDate: timestamp("end_date"),
@@ -126,8 +127,8 @@ export const assets = pgTable("assets", {
   name: text("name").notNull(),
   description: text("description"),
   category: text("category").notNull(),
-  purchaseValue: integer("purchase_value").notNull(),
-  currentValue: integer("current_value").notNull(),
+  purchaseValue: doublePrecision("purchase_value").notNull(),
+  currentValue: doublePrecision("current_value").notNull(),
   purchaseDate: timestamp("purchase_date").notNull(),
   location: text("location"),
   status: assetStatusEnum("status").notNull().default("active"),
@@ -188,7 +189,7 @@ export const fines = pgTable("fines", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id),
   reason: text("reason").notNull(),
-  amount: integer("amount").notNull(),
+  amount: doublePrecision("amount").notNull(),
   status: fineStatusEnum("status").notNull().default("pending"),
   issuedBy: uuid("issued_by").notNull().references(() => users.id),
   issuedAt: timestamp("issued_at").notNull().defaultNow(),
@@ -202,7 +203,7 @@ export const expenses = pgTable("expenses", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   description: text("description"),
-  amount: integer("amount").notNull(),
+  amount: doublePrecision("amount").notNull(),
   category: text("category").notNull().default("general"),
   status: expenseStatusEnum("status").notNull().default("pending"),
   expenseDate: timestamp("expense_date").notNull(),
@@ -221,12 +222,13 @@ export const monthlySnapshots = pgTable("monthly_snapshots", {
   year: integer("year").notNull(),
   month: integer("month").notNull(),
   totalMembers: integer("total_members").notNull().default(0),
-  totalFundValue: integer("total_fund_value").notNull().default(0),
-  totalInvested: integer("total_invested").notNull().default(0),
-  totalReturns: integer("total_returns").notNull().default(0),
-  totalAssets: integer("total_assets").notNull().default(0),
-  totalWalletBalance: integer("total_wallet_balance").notNull().default(0),
-  netWorth: integer("net_worth").notNull().default(0),
+  totalFundValue: doublePrecision("total_fund_value").notNull().default(0),
+  totalInvested: doublePrecision("total_invested").notNull().default(0),
+  totalReturns: doublePrecision("total_returns").notNull().default(0),
+  totalAssets: doublePrecision("total_assets").notNull().default(0),
+  totalWalletBalance: doublePrecision("total_wallet_balance").notNull().default(0),
+  totalExpenses: doublePrecision("total_expenses").notNull().default(0),
+  netWorth: doublePrecision("net_worth").notNull().default(0),
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

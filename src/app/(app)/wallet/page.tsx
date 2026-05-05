@@ -18,6 +18,7 @@ function Badge({ type }: { type: string }) {
     deposit: ["#064e3b", "#10b981"], withdrawal: ["#450a0a", "#f87171"],
     dividend: ["#2e1065", "#a78bfa"], fine: ["#451a03", "#f59e0b"],
     manual: ["#1e293b", "#64748b"], investment_return: ["#1e3a5f", "#60a5fa"],
+    expense: ["#450a0a", "#ef4444"],
   };
   const [bg, fg] = m[type] ?? ["#1e293b", "#94a3b8"];
   return <span style={{ background: bg, color: fg, padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600, textTransform: "capitalize" }}>{type.replace(/_/g, " ")}</span>;
@@ -173,7 +174,7 @@ export default function WalletPage() {
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search transactions…" style={{ ...inp, paddingLeft: 36 }} />
         </div>
         <div style={{ display: "flex", gap: 6 }}>
-          {["all", "deposit", "withdrawal", "dividend", "fine", "investment_return", "manual"].map(f => (
+          {["all", "deposit", "withdrawal", "dividend", "fine", "investment_return", "manual", "expense"].map(f => (
             <button key={f} onClick={() => setFilterType(f)} style={{
               padding: "6px 12px", borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: "pointer",
               border: "none", background: filterType === f ? "#7c3aed" : "#141428",

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import { db } from "@/db";
 import { wallets, walletTransactions, users } from "@/db/schema";
 import { requireSession, requireAdmin } from "@/lib/session";
@@ -12,7 +12,7 @@ export async function GET() {
         id: wallets.id, balance: wallets.balance, updatedAt: wallets.updatedAt,
         userId: wallets.userId, userName: users.name, userEmail: users.email,
         txnCount: sql<number>`(select count(*)::int from wallet_transactions where wallet_id = ${wallets.id})`,
-      }).from(wallets).leftJoin(users, eq(wallets.userId, users.id));
+      }).from(wallets).leftJoin(users, eq(wallets.userId, users.id)).where(eq(users.isActive, true));
       return NextResponse.json(rows);
     }
     const [wallet] = await db.select().from(wallets).where(eq(wallets.userId, session.sub));

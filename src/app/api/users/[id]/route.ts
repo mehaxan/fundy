@@ -9,7 +9,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     await requireAdmin();
     const { id } = await params;
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!user || !user.isActive) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(user);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Server error";

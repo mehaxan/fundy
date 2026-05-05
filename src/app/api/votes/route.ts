@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { desc, eq, count } from "drizzle-orm";
+import { desc, eq, count, and } from "drizzle-orm";
 import { db } from "@/db";
 import { votes, voteResponses, meetings, users } from "@/db/schema";
 import { requireSession, requireAdmin } from "@/lib/session";
@@ -14,7 +14,7 @@ export async function GET() {
       meetingId: votes.meetingId, meetingTitle: meetings.title, createdByName: users.name,
     }).from(votes)
       .leftJoin(meetings, eq(votes.meetingId, meetings.id))
-      .leftJoin(users, eq(votes.createdBy, users.id))
+      .leftJoin(users, and(eq(votes.createdBy, users.id), eq(users.isActive, true)))
       .orderBy(desc(votes.createdAt));
     const enriched = await Promise.all(rows.map(async (v) => {
       const [res] = await db.select({ total: count() }).from(voteResponses).where(eq(voteResponses.voteId, v.id));

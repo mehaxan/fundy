@@ -3,7 +3,7 @@ import { eq, count, sum, desc, and } from "drizzle-orm";
 import { db } from "@/db";
 import {
   funds, investments, wallets, walletTransactions,
-  shares, users, assets, fines, meetings, monthlySnapshots,
+  shares, users, assets, fines, meetings, monthlySnapshots, expenses,
 } from "@/db/schema";
 import { requireSession } from "@/lib/session";
 
@@ -61,12 +61,20 @@ export async function GET() {
     // Monthly snapshots for growth chart
     const snapshots = await db.select().from(monthlySnapshots).orderBy(monthlySnapshots.year, monthlySnapshots.month).limit(24);
 
-    // Wallet totals
+    // Wallet totals (round to 2 decimals to avoid float drift)
     const allWallets = await db.select({ balance: wallets.balance }).from(wallets);
-    const totalWalletBalance = allWallets.reduce((a, w) => a + w.balance, 0);
+    const totalWalletBalance = Math.round(allWallets.reduce((a, w) => a + w.balance, 0) * 100) / 100;
+
+    // Approved expenses
+    const [expenseResult] = await db
+      .select({ total: sum(expenses.amount) })
+      .from(expenses)
+      .where(eq(expenses.status, "approved"));
+    const totalApprovedExpenses = Math.round(Number(expenseResult?.total ?? 0) * 100) / 100;
 
     // Net worth = wallet balances + assets + investment returns
-    const netWorth = totalWalletBalance + totalAssets + totalReturns;
+    // (expenses are already reflected in wallet balances via debits — no double-subtraction)
+    const netWorth = Math.round((totalWalletBalance + totalAssets + totalReturns) * 100) / 100;
 
     // Per-user data (for members)
     let myData = null;
@@ -93,6 +101,7 @@ export async function GET() {
       totalAssets,
       totalShareValue,
       totalWalletBalance,
+      totalExpenses: totalApprovedExpenses,
       netWorth,
       activeInvestments,
       pendingShares: pendingSharesCount[0].total,

@@ -67,6 +67,7 @@ export default function ProjectionsPage() {
     "Returns": Number(s.totalReturns),
     "Assets": Number(s.totalAssets),
     "Wallet": Number(s.totalWalletBalance),
+    "Expenses": Number(s.totalExpenses),
     "Members": Number(s.totalMembers),
     "ROI %": Number(s.totalInvested) > 0 ? Number(((Number(s.totalReturns) / Number(s.totalInvested)) * 100).toFixed(2)) : 0,
   }));
@@ -135,6 +136,7 @@ export default function ProjectionsPage() {
             { label: "Total Returns", value: bdtC(latestSnap.totalReturns), color: "#3b82f6" },
             { label: "Assets", value: bdtC(latestSnap.totalAssets), color: "#f59e0b" },
             { label: "Wallet Balance", value: bdtC(latestSnap.totalWalletBalance), color: "#06b6d4" },
+            { label: "Expenses", value: bdtC(latestSnap.totalExpenses), color: "#ef4444" },
             { label: "Members", value: String(latestSnap.totalMembers), color: "#a78bfa" },
           ].map(s => (
             <div key={s.label} className="card-hover" style={{ background: "#0e0e1c", border: "1px solid #1e1e38", borderRadius: 12, padding: "16px 18px" }}>
@@ -215,6 +217,7 @@ export default function ProjectionsPage() {
                   <Bar dataKey="Returns" fill="#10b981" stackId="a" />
                   <Bar dataKey="Assets" fill="#f59e0b" stackId="a" />
                   <Bar dataKey="Wallet" fill="#06b6d4" stackId="a" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Expenses" fill="#ef4444" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -244,7 +247,7 @@ export default function ProjectionsPage() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {["Period", "Net Worth", "Invested", "Returns", "Assets", "Members", "ROI"].map(h => (
+                  {["Period", "Net Worth", "Invested", "Returns", "Assets", "Expenses", "Members", "ROI"].map(h => (
                     <th key={h} style={{ textAlign: "left", fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: 0.5, padding: "10px 16px", borderBottom: "1px solid #1e1e38" }}>{h}</th>
                   ))}
                 </tr>
@@ -261,6 +264,7 @@ export default function ProjectionsPage() {
                       <td style={{ padding: "10px 16px", borderBottom: "1px solid #141428", fontSize: 13, color: "#a78bfa" }}>{bdtC(Number(s.totalInvested))}</td>
                       <td style={{ padding: "10px 16px", borderBottom: "1px solid #141428", fontSize: 13, color: "#10b981" }}>{bdtC(Number(s.totalReturns))}</td>
                       <td style={{ padding: "10px 16px", borderBottom: "1px solid #141428", fontSize: 13, color: "#f59e0b" }}>{bdtC(Number(s.totalAssets))}</td>
+                      <td style={{ padding: "10px 16px", borderBottom: "1px solid #141428", fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{bdtC(Number(s.totalExpenses))}</td>
                       <td style={{ padding: "10px 16px", borderBottom: "1px solid #141428", fontSize: 13, color: "#94a3b8" }}>{String(s.totalMembers)}</td>
                       <td style={{ padding: "10px 16px", borderBottom: "1px solid #141428", fontSize: 13, fontWeight: 700, color: Number(roi) >= 0 ? "#10b981" : "#ef4444" }}>{roi}%</td>
                     </tr>

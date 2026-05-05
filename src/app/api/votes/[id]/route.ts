@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession, requireAdmin } from "@/lib/session";
 import { db } from "@/db";
 import { votes, voteResponses, users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         createdAt: voteResponses.createdAt,
       })
       .from(voteResponses)
-      .leftJoin(users, eq(voteResponses.userId, users.id))
+      .leftJoin(users, and(eq(voteResponses.userId, users.id), eq(users.isActive, true)))
       .where(eq(voteResponses.voteId, id));
 
     const myResponse = responses.find(r => r.userId === session.sub) ?? null;

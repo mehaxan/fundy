@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getSession, requireAdmin } from "@/lib/session";
 import { db } from "@/db";
 import { walletTransactions, wallets, users } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export async function GET() {
   try {
@@ -27,6 +27,7 @@ export async function GET() {
         .from(walletTransactions)
         .leftJoin(wallets, eq(walletTransactions.walletId, wallets.id))
         .leftJoin(users, eq(wallets.userId, users.id))
+        .where(eq(users.isActive, true))
         .orderBy(desc(walletTransactions.createdAt))
         .limit(200);
       return NextResponse.json(txns);
